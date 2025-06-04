@@ -24,31 +24,33 @@ Il combine des aspects **frontend**, **backend**, et **base de données**, tout 
 ## 📷 Captures & Explications
 
 ### 🔹 Création de Lieux
-![Création d’un lieu](part1/Creation-Liste_Lieux.png)  
+![Création d’un lieu](HBnB/part1
+/Creation-Liste_Lieux.png)  
 Formulaire permettant à un utilisateur de créer un nouveau lieu, avec saisie de nom, description, localisation, etc.
 
 ---
 
 ### 🔹 Diagramme Fonctionnel
-![Diagramme Mermaid](part1/Editor _ Mermaid Chart-2025-06-02-140252.png)  
+![Diagramme Mermaid](HBnB/part1/Editor _ Mermaid Chart-2025-06-02-140252.png)  
 Vue d’ensemble des flux applicatifs, de l’enregistrement jusqu’à la gestion des lieux et des avis.
 
 ---
 
 ### 🔹 Enregistrement Utilisateur
-![Enregistrement](part1/Enregistrement_Utilisateur.png)  
+![Enregistrement](HBnB/part1/Enregistrement_Utilisateur.png)  
 Interface dédiée à la création d’un compte utilisateur sécurisé.
 
 ---
 
 ### 🔹 Filtrage de Lieux
-![Filtrage](part1/Filtrage_Lieux.png)  
+![Filtrage](HBnB/part1
+/Filtrage_Lieux.png)
 Module permettant de filtrer la liste des lieux affichés selon des critères définis.
 
 ---
 
 ### 🔹 Soumission d’Avis
-![Avis](part1/Soumission_Avis.png)
+![Avis](HBnB/part1/Soumission_Avis.png)
 Les utilisateurs peuvent noter un lieu et laisser un commentaire visible par les autres.
 
 ---
