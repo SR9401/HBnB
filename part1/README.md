@@ -24,14 +24,13 @@ Il combine des aspects **frontend**, **backend**, et **base de données**, tout 
 ## 📷 Captures & Explications
 
 ### 🔹 Création de Lieux
-![Création d’un lieu](HBnB/part1
-/Creation-Liste_Lieux.png)  
+![Création d’un lieu](HBnB/part1/Creation-Liste_Lieux.png)  
 Formulaire permettant à un utilisateur de créer un nouveau lieu, avec saisie de nom, description, localisation, etc.
 
 ---
 
 ### 🔹 Diagramme Fonctionnel
-![Diagramme Mermaid](HBnB/part1/Editor _ Mermaid Chart-2025-06-02-140252.png)  
+![Diagramme Mermaid](HBnB/part1/Editor_MermaidChart-2025-06-02-140252.png)  
 Vue d’ensemble des flux applicatifs, de l’enregistrement jusqu’à la gestion des lieux et des avis.
 
 ---
