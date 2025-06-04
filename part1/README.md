@@ -24,7 +24,7 @@ Il combine des aspects **frontend**, **backend**, et **base de données**, tout 
 ## 📷 Captures & Explications
 
 ### 🔹 Création de Lieux
-<div align="center"> <img src="images/DS_Lieux.png" alt="Création d’un lieu" width="400"/> </div> Formulaire permettant à un utilisateur de créer un nouveau lieu, avec saisie du nom, description, localisation, etc.
+<div align="center"> <img src="images/DS_Creation_Lieux.png" alt="Création d’un lieu" width="400"/> </div> Formulaire permettant à un utilisateur de créer un nouveau lieu, avec saisie du nom, description, localisation, etc.
 
 ---
 
