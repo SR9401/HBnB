@@ -23,35 +23,67 @@ Il combine des aspects **frontend**, **backend**, et **base de données**, tout 
 
 ## 📷 Captures & Explications
 
-### 🔹 Diagramme Fonctionnel
-<div align="center"> <img src="images/Diagram_Class.png" alt="Diagramme Mermaid" width="500"/> </div> Vue d’ensemble des flux applicatifs, de l’enregistrement jusqu’à la gestion des lieux et des avis.
+### 🔹 Diagramme Général
+<div align="center">
+  <img src="images/Diagramme_General.png" alt="Diagramme Général" width="500"/>
+</div>
+
+Ce diagramme présente la structure logique du projet selon une architecture en couches.  
+- **Couche de présentation** : gère l’affichage et la communication avec les APIs.
+- **Logique métier** : applique les règles de gestion via un patron de façade pour centraliser les appels.
+- **Base de données** : stockage persistant des entités (`Utilisateur`, `Lieu`, `Équipement`, `Avis`).
+
+---
+
+### 🔹 Diagramme de Classes
+<div align="center">
+  <img src="images/Diagramme_Classe.png" alt="Diagramme Mermaid" width="500"/>
+</div>
+
+Ce diagramme UML détaille les différentes entités manipulées dans l’application ainsi que leurs relations :
+- `Utilisateur`, `Lieu`, `Avis`, `Équipement` sont les principales classes métier.
+- Chaque entité est représentée avec ses attributs et ses associations.
+- Des liens de dépendance entre les couches illustrent l’interaction des composants avec la logique métier et la base.
 
 ---
 
 ### 🔹 Enregistrement Utilisateur
-<div align="center"> <img src="images/DS_Utilisateur.png" alt="Enregistrement" width="400"/> </div> Interface dédiée à la création d’un compte utilisateur sécurisé avec vérification des données côté client et serveur, hachage du mot de passe, et génération d’un jeton JWT pour l’authentification.
+<div align="center">
+  <img src="images/DS_Utilisateur.png" alt="Enregistrement" width="400"/>
+</div>
 
----
-
-### 🔹 Création de Listes de Lieux
-<div align="center"> <img src="images/DS_Creation_Lieux.png" alt="Création d’un lieu" width="400"/> </div> Fonctionnalité permettant à un utilisateur de créer une nouvelle liste personnalisée de lieux, en saisissant un nom et en sélectionnant des lieux existants. Vérification d’authentification via JWT et gestion des doublons intégrées.
+Diagramme de séquence décrivant le processus complet d’inscription :
+- Saisie des données (email, mot de passe, pseudo) côté client.
+- Vérification de format côté front.
+- Transmission des données à l’API backend.
+- Vérification de l’unicité, hachage du mot de passe et enregistrement en base.
+- Génération d’un JWT pour authentification.
+- Réponse au client indiquant le succès ou une erreur.
 
 ---
 
 ### 🔹 Soumission d’Avis
 <div align="center">
-  <img src="images/DS_soumission_Avis.png" alt="Avis" width="400"/>
+  <img src="images/DS_soumission_Avis.png" alt="Soumission d’Avis" width="400"/>
 </div>
-Les utilisateurs peuvent évaluer un lieu en attribuant une note et en laissant un commentaire. L’avis est validé côté client et serveur avant d’être enregistré en base et affiché dynamiquement dans l’interface.
+
+Les utilisateurs peuvent évaluer un lieu en attribuant une note et en laissant un commentaire.  
+Le backend valide l’authenticité de l’auteur (via token), s’assure que l’avis respecte les contraintes métiers (note entre 1 et 5, champ texte non vide) et enregistre l’avis en base.  
+L’interface met ensuite à jour dynamiquement les avis affichés pour chaque lieu.
 
 ---
 
 ### 🔹 Filtrage de Lieux
-<div align="center"> <img src="images/DS_filtrage_lieux.png" alt="Filtrage" width="400"/> </div> 
-Module de recherche permettant à l’utilisateur de filtrer la liste des lieux selon différents critères (ville, type, note, etc.). La requête est construite dynamiquement en fonction des filtres sélectionnés, et les résultats sont affichés en temps réel.
+<div align="center">
+  <img src="images/DS_filtrage_lieux.png" alt="Filtrage" width="400"/>
+</div>
+
+L’utilisateur saisit des critères (ville, type, note).  
+L’interface Web envoie la requête contenant les filtres sélectionnés à l’API backend, qui génère dynamiquement une requête SQL sécurisée.  
+Les résultats sont récupérés de la base, formatés, puis renvoyés et affichés dynamiquement.  
+Ce module améliore l’expérience utilisateur grâce à une recherche rapide et contextuelle.
 
 ---
-
 
 ## 👥 Équipe Projet
 
@@ -60,6 +92,5 @@ Module de recherche permettant à l’utilisateur de filtrer la liste des lieux 
 | Ilmi Veliu   |
 | Angela Rhin  |
 | Rojas Shakib |
-
 
 ---
