@@ -61,6 +61,19 @@ Diagramme de séquence décrivant le processus complet d’inscription :
 - Réponse au client indiquant le succès ou une erreur.
 
 ---
+### 🔹 Création Lieux
+<div align="center">
+  <img src="images/DS_Liste-lieux.png" alt="Filtrage" width="400"/>
+</div>
+
+Ce diagramme de séquence montre comment un utilisateur peut créer une liste de lieux :
+- **Saisie des critères** : L'utilisateur saisit les critères de recherche pour les lieux (ville, type, note, etc.).
+- **Envoi de la requête** : L'interface web envoie ces critères à l'API backend.
+**Génération de la requête SQL** : Le backend génère une requête SQL sécurisée pour récupérer les lieux correspondant aux critères.
+- **Récupération et affichage des résultats** : Les résultats sont récupérés de la base de données, formatés, puis renvoyés à l'interface web pour être affichés dynamiquement.
+
+
+---
 
 ### 🔹 Soumission d’Avis
 <div align="center">
@@ -75,19 +88,6 @@ Les utilisateurs peuvent évaluer un lieu en attribuant une note et en laissant 
 
 ---
 
-### 🔹 Création Lieux
-<div align="center">
-  <img src="images/DS_Liste-lieux.png" alt="Filtrage" width="400"/>
-</div>
-
-Ce diagramme de séquence montre comment un utilisateur peut créer une liste de lieux :
-- **Saisie des critères** : L'utilisateur saisit les critères de recherche pour les lieux (ville, type, note, etc.).
-- **Envoi de la requête** : L'interface web envoie ces critères à l'API backend.
-**Génération de la requête SQL** : Le backend génère une requête SQL sécurisée pour récupérer les lieux correspondant aux critères.
-- **Récupération et affichage des résultats** : Les résultats sont récupérés de la base de données, formatés, puis renvoyés à l'interface web pour être affichés dynamiquement.
-
-
----
 ### 🔹 Filtrage de Lieux
 <div align="center">
   <img src="images/DS_Filtrage-lieux.png" alt="Filtrage" width="400"/>
