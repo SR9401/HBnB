@@ -62,15 +62,6 @@ Diagramme de séquence décrivant le processus complet d’inscription :
 
 ---
 
-### 🔹 Création de liste de lieux
-<div align="center">
-  <img src="images/DS_Liste-lieux.png" alt="Enregistrement" width="400"/>
-</div>
-
-
-
----
-
 ### 🔹 Soumission d’Avis
 <div align="center">
   <img src="images/DS_Avis.png" alt="Soumission d’Avis" width="400"/>
@@ -85,6 +76,18 @@ L’interface met ensuite à jour dynamiquement les avis affichés pour chaque l
 ### 🔹 Filtrage de Lieux
 <div align="center">
   <img src="images/DS_Filtrage-lieux.png" alt="Filtrage" width="400"/>
+</div>
+
+L’utilisateur saisit des critères (ville, type, note).  
+L’interface Web envoie la requête contenant les filtres sélectionnés à l’API backend, qui génère dynamiquement une requête SQL sécurisée.  
+Les résultats sont récupérés de la base, formatés, puis renvoyés et affichés dynamiquement.  
+Ce module améliore l’expérience utilisateur grâce à une recherche rapide et contextuelle.
+
+---
+
+### 🔹 Création Lieux
+<div align="center">
+  <img src="images/DS_Liste-lieux.png" alt="Filtrage" width="400"/>
 </div>
 
 L’utilisateur saisit des critères (ville, type, note).  
