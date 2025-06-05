@@ -28,10 +28,10 @@ Il combine des aspects **frontend**, **backend**, et **base de données**, tout 
   <img src="images/Diagramme_General.png" alt="Diagramme Général" width="500"/>
 </div>
 
-Ce diagramme présente la structure logique du projet selon une architecture en couches.  
-- **Couche de présentation** : gère l’affichage et la communication avec les APIs.
-- **Logique métier** : applique les règles de gestion via un patron de façade pour centraliser les appels.
-- **Base de données** : stockage persistant des entités (`Utilisateur`, `Lieu`, `Équipement`, `Avis`).
+Ce diagramme présente la structure logique du projet selon une architecture en couches.
+- **Couche de présentation** : Cette couche est responsable de l'interaction avec l'utilisateur. Elle gère l'affichage des données et la communication avec les APIs pour assurer une expérience utilisateur fluide.
+- **Logique métier** : Cette couche applique les règles de gestion de l'application. Elle utilise un patron de façade pour centraliser les appels, simplifiant ainsi la communication entre les différentes parties du système.
+- **Base de données** : Cette couche est responsable du stockage persistant des données. Elle contient les entités principales du système : `Utilisateur`, `Lieu`, `Équipement`, et `Avis`.
 
 ---
 
@@ -67,21 +67,11 @@ Diagramme de séquence décrivant le processus complet d’inscription :
   <img src="images/DS_Avis.png" alt="Soumission d’Avis" width="400"/>
 </div>
 
-Les utilisateurs peuvent évaluer un lieu en attribuant une note et en laissant un commentaire.  
-Le backend valide l’authenticité de l’auteur (via token), s’assure que l’avis respecte les contraintes métiers (note entre 1 et 5, champ texte non vide) et enregistre l’avis en base.  
-L’interface met ensuite à jour dynamiquement les avis affichés pour chaque lieu.
-
----
-
-### 🔹 Filtrage de Lieux
-<div align="center">
-  <img src="images/DS_Filtrage-lieux.png" alt="Filtrage" width="400"/>
-</div>
-
-L’utilisateur saisit des critères (ville, type, note).  
-L’interface Web envoie la requête contenant les filtres sélectionnés à l’API backend, qui génère dynamiquement une requête SQL sécurisée.  
-Les résultats sont récupérés de la base, formatés, puis renvoyés et affichés dynamiquement.  
-Ce module améliore l’expérience utilisateur grâce à une recherche rapide et contextuelle.
+Les utilisateurs peuvent évaluer un lieu en attribuant une note et en laissant un commentaire :
+- **Saisie de l'avis** : L'utilisateur saisit une note et un commentaire pour un lieu.
+- **Vérification et envoi** : L'interface web vérifie les données et les envoie à l'API backend.
+- **Validation et enregistrement** : Le backend valide l'authenticité de l'auteur via un token, vérifie les contraintes métiers (note entre 1 et 5, champ texte non vide), et enregistre l'avis en base de données.
+- **Mise à jour dynamique** : L'interface met à jour dynamiquement les avis affichés pour chaque lieu.
 
 ---
 
@@ -90,19 +80,34 @@ Ce module améliore l’expérience utilisateur grâce à une recherche rapide e
   <img src="images/DS_Liste-lieux.png" alt="Filtrage" width="400"/>
 </div>
 
-L’utilisateur saisit des critères (ville, type, note).  
-L’interface Web envoie la requête contenant les filtres sélectionnés à l’API backend, qui génère dynamiquement une requête SQL sécurisée.  
-Les résultats sont récupérés de la base, formatés, puis renvoyés et affichés dynamiquement.  
-Ce module améliore l’expérience utilisateur grâce à une recherche rapide et contextuelle.
+Ce diagramme de séquence montre comment un utilisateur peut créer une liste de lieux :
+- **Saisie des critères** : L'utilisateur saisit les critères de recherche pour les lieux (ville, type, note, etc.).
+- **Envoi de la requête** : L'interface web envoie ces critères à l'API backend.
+**Génération de la requête SQL** : Le backend génère une requête SQL sécurisée pour récupérer les lieux correspondant aux critères.
+- **Récupération et affichage des résultats** : Les résultats sont récupérés de la base de données, formatés, puis renvoyés à l'interface web pour être affichés dynamiquement.
+
 
 ---
+### 🔹 Filtrage de Lieux
+<div align="center">
+  <img src="images/DS_Filtrage-lieux.png" alt="Filtrage" width="400"/>
+</div>
+
+L’utilisateur saisit des critères (ville, type, note) :
+- **Saisie des critères** : L'utilisateur saisit les critères de filtrage via l'interface web.
+- **Envoi de la requête** : L'interface web envoie la requête contenant les filtres sélectionnés à l'API backend.
+- **Génération de la requête SQL** : Le backend génère dynamiquement une requête SQL sécurisée pour récupérer les lieux correspondant aux critères.
+- **Affichage des résultats** : Les résultats sont récupérés de la base de données, formatés, puis renvoyés à l'interface web pour être affichés dynamiquement, améliorant ainsi l'expérience utilisateur grâce à une recherche rapide et contextuelle.
+
+---
+
 
 ## 👥 Équipe Projet
 
 | Nom          |
 |--------------|
-| Ilmi Veliu   |
-| Angela Rhin  |
-| Rojas Shakib |
+|[Ilmi Veliu](https://github.com/ilmi-veliu)   |
+|[Angela Rhin](https://github.com/Sweetyamnesia/sweetyamnesia) |
+|[Shakib ROJAS](https://github.com/SR9401)|
 
 ---
