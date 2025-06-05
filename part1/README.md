@@ -84,7 +84,7 @@ L’interface met ensuite à jour dynamiquement les avis affichés pour chaque l
 
 ### 🔹 Filtrage de Lieux
 <div align="center">
-  <img src="images/DS_Filtrage_lieux.png" alt="Filtrage" width="400"/>
+  <img src="images/DS_Filtrage-lieux.png" alt="Filtrage" width="400"/>
 </div>
 
 L’utilisateur saisit des critères (ville, type, note).  
