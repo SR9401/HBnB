@@ -49,7 +49,7 @@ Ce diagramme UML détaille les différentes entités manipulées dans l’applic
 
 ### 🔹 Enregistrement Utilisateur
 <div align="center">
-  <img src="DS_Utilisateur.png" alt="Enregistrement" width="400"/>
+  <img src="images/DS_Utilisateur.png" alt="Enregistrement" width="400"/>
 </div>
 
 Diagramme de séquence décrivant le processus complet d’inscription :
@@ -64,7 +64,7 @@ Diagramme de séquence décrivant le processus complet d’inscription :
 
 ### 🔹 Création de liste de lieux
 <div align="center">
-  <img src="DS_Liste-lieux.png" alt="Enregistrement" width="400"/>
+  <img src="images/DS_Liste-lieux.png" alt="Enregistrement" width="400"/>
 </div>
 
 
@@ -73,7 +73,7 @@ Diagramme de séquence décrivant le processus complet d’inscription :
 
 ### 🔹 Soumission d’Avis
 <div align="center">
-  <img src="DS_Avis.png" alt="Soumission d’Avis" width="400"/>
+  <img src="images/DS_Avis.png" alt="Soumission d’Avis" width="400"/>
 </div>
 
 Les utilisateurs peuvent évaluer un lieu en attribuant une note et en laissant un commentaire.  
@@ -84,7 +84,7 @@ L’interface met ensuite à jour dynamiquement les avis affichés pour chaque l
 
 ### 🔹 Filtrage de Lieux
 <div align="center">
-  <img src="DS_Filtrage_lieux.png" alt="Filtrage" width="400"/>
+  <img src="images/DS_Filtrage_lieux.png" alt="Filtrage" width="400"/>
 </div>
 
 L’utilisateur saisit des critères (ville, type, note).  
