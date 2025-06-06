@@ -14,12 +14,13 @@ HBnB est une application web de gestion de lieux (touristiques, culturels, insol
   <img src="images/Diagramme_General.png" alt="Diagramme Général" width="500"/>
 </div>
 
-1.2 Description
+### 1.2 Description
 L'application suit une architecture en couches claire et modulaire :
-- Couche de présentation (Frontend) : Fournit l’interface utilisateur, gère les interactions et transmet les requêtes au backend.
-- Couche de logique métier (Backend) : Contient les règles de gestion, la validation des données, la logique d'authentification et de filtrage.
-- Couche de persistance (Base de données) : Enregistre les entités principales (Utilisateurs, Lieux, Avis, Équipements).
-Patron de Façade
+- **Couche de présentation (Frontend)** : Fournit l’interface utilisateur, gère les interactions et transmet les requêtes au backend.
+- **Couche de logique métier (Backend)** : Contient les règles de gestion, la validation des données, la logique d'authentification et de filtrage.
+- **Couche de persistance (Base de données)** : Enregistre les entités principales (Utilisateurs, Lieux, Avis, Équipements).
+
+**Patron de Façade**
 La logique métier est centralisée via une façade unique qui permet de simplifier les appels entre l’interface et les services internes, améliorant la maintenabilité.
 
 ---
@@ -37,9 +38,10 @@ Le diagramme UML présente les principales entités du système :
 - **Lieu** : Décrit un site proposé par un utilisateur, associé à des équipements et des avis.
 - **Avis** : Contient une note et un commentaire. Lié à un utilisateur et à un lieu.
 - **Équipement** : Lié à un ou plusieurs lieux.
-Choix de conception
+
+**Choix de conception**
 - Utilisation d'une relation de composition entre Lieu et Avis (→ un avis n'existe que dans le contexte d'un lieu).
-- Encapsulation de la logique métier dans des classes de service distinctes (ex : AvisService, LieuService).
+- Encapsulation de la logique métier dans des classes de service distinctes (ex : `AvisService`, `LieuService`).
 
 ---
 
@@ -58,6 +60,7 @@ Choix de conception
 - Transmission à l'API
 - Vérification d’unicé, hachage, enregistrement
 - Génération d'un token JWT et retour
+
 **Rationale** : Authentification stateless et sécurité accrue via JWT.
 ---
 
