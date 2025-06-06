@@ -1,106 +1,111 @@
-# Projet HbNb
+# Document Technique - Projet HBnB
 
-Bienvenue dans notre projet collaboratif de gestion de lieux ! Cette application permet aux utilisateurs de s’inscrire, de consulter une base de lieux, d’en ajouter de nouveaux, de les filtrer selon leurs préférences et de partager des avis. Le tout est pensé pour une expérience fluide et intuitive.
 
----
-
-## 🧠 Objectif du Projet
-
-Ce projet a pour but de mettre en œuvre une application web simple et fonctionnelle autour de la découverte et du partage de lieux intéressants (sites touristiques, restaurants, spots cachés…).  
-Il combine des aspects **frontend**, **backend**, et **base de données**, tout en mettant l’accent sur l’**interaction utilisateur**.
+## Introduction
+Ce document technique consolide l'ensemble des éléments d'architecture et de conception réalisés pour le projet HBnB. Il vise à servir de référence durant les phases de développement et d’implémentation. Il présente l’architecture globale de l’application, la logique métier, ainsi que les flux d’interaction entre les composants du système via des diagrammes UML et leurs explications.
+HBnB est une application web de gestion de lieux (touristiques, culturels, insolites...) permettant à des utilisateurs de consulter, filtrer, proposer et commenter des lieux d'intérêt.
 
 ---
 
-## ⚙️ Fonctionnalités Clés
+## 1. Architecture de Haut Niveau
 
-- **Inscription / Connexion** : gestion sécurisée des comptes utilisateurs.
-- **Ajout de lieux** : formulaire pour proposer de nouveaux lieux à découvrir.
-- **Filtrage dynamique** : interface permettant de trier les lieux selon différents critères (popularité, type, etc).
-- **Soumission d’avis** : possibilité de noter et commenter les lieux visités.
-- **Visualisation interactive** : consultation facile et rapide des lieux ajoutés.
-
----
-
-## 📷 Captures & Explications
-
-### 🔹 Diagramme Général
+### 1.1 Diagramme de Packages
 <div align="center">
   <img src="images/Diagramme_General.png" alt="Diagramme Général" width="500"/>
 </div>
 
-Ce diagramme présente la structure logique du projet selon une architecture en couches.
-- **Couche de présentation** : Cette couche est responsable de l'interaction avec l'utilisateur. Elle gère l'affichage des données et la communication avec les APIs pour assurer une expérience utilisateur fluide.
-- **Logique métier** : Cette couche applique les règles de gestion de l'application. Elle utilise un patron de façade pour centraliser les appels, simplifiant ainsi la communication entre les différentes parties du système.
-- **Base de données** : Cette couche est responsable du stockage persistant des données. Elle contient les entités principales du système : `Utilisateur`, `Lieu`, `Équipement`, et `Avis`.
+1.2 Description
+L'application suit une architecture en couches claire et modulaire :
+- Couche de présentation (Frontend) : Fournit l’interface utilisateur, gère les interactions et transmet les requêtes au backend.
+- Couche de logique métier (Backend) : Contient les règles de gestion, la validation des données, la logique d'authentification et de filtrage.
+- Couche de persistance (Base de données) : Enregistre les entités principales (Utilisateurs, Lieux, Avis, Équipements).
+Patron de Façade
+La logique métier est centralisée via une façade unique qui permet de simplifier les appels entre l’interface et les services internes, améliorant la maintenabilité.
 
 ---
 
-### 🔹 Diagramme de Classes
+## 2. Logique Métier
+
+### 2.1 Diagramme de Classes
 <div align="center">
-  <img src="images/Diagramme_Classe.png" alt="Diagramme Mermaid" width="500"/>
+  <img src="images/diagrame_de_class.png" alt="Diagramme Mermaid" width="500"/>
 </div>
 
-Ce diagramme UML détaille les différentes entités manipulées dans l’application ainsi que leurs relations :
-- `Utilisateur`, `Lieu`, `Avis`, `Équipement` sont les principales classes métier.
-- Chaque entité est représentée avec ses attributs et ses associations.
-- Des liens de dépendance entre les couches illustrent l’interaction des composants avec la logique métier et la base.
+### 2.2 Description
+Le diagramme UML présente les principales entités du système :
+- **Utilisateur** : Attributs (email, mot de passe, pseudo), relations avec Avis et Lieux.
+- **Lieu** : Décrit un site proposé par un utilisateur, associé à des équipements et des avis.
+- **Avis** : Contient une note et un commentaire. Lié à un utilisateur et à un lieu.
+- **Équipement** : Lié à un ou plusieurs lieux.
+Choix de conception
+- Utilisation d'une relation de composition entre Lieu et Avis (→ un avis n'existe que dans le contexte d'un lieu).
+- Encapsulation de la logique métier dans des classes de service distinctes (ex : AvisService, LieuService).
 
 ---
 
-### 🔹 Enregistrement Utilisateur
+## 3. Flux d’Interaction - API
+
+### 3.1 Diagrammes de Séquence
+
+### A. Inscription d’un Utilisateur
 <div align="center">
   <img src="images/DS_Utilisateur.png" alt="Enregistrement" width="400"/>
 </div>
 
-Diagramme de séquence décrivant le processus complet d’inscription :
-- Saisie des données (email, mot de passe, pseudo) côté client.
-- Vérification de format côté front.
-- Transmission des données à l’API backend.
-- Vérification de l’unicité, hachage du mot de passe et enregistrement en base.
-- Génération d’un JWT pour authentification.
-- Réponse au client indiquant le succès ou une erreur.
-
+**Étapes clés** :
+- Saisie des données utilisateur (frontend)
+- Validation côté client
+- Transmission à l'API
+- Vérification d’unicé, hachage, enregistrement
+- Génération d'un token JWT et retour
+**Rationale** : Authentification stateless et sécurité accrue via JWT.
 ---
-### 🔹 Création Lieux
+
+### B. Création d’un Lieu
+
 <div align="center">
   <img src="images/DS_Liste-lieux.png" alt="Filtrage" width="400"/>
 </div>
 
-Ce diagramme de séquence montre comment un utilisateur peut créer une liste de lieux :
-- **Saisie des critères** : L'utilisateur saisit les critères de recherche pour les lieux (ville, type, note, etc.).
-- **Envoi de la requête** : L'interface web envoie ces critères à l'API backend.
-**Génération de la requête SQL** : Le backend génère une requête SQL sécurisée pour récupérer les lieux correspondant aux critères.
-- **Récupération et affichage des résultats** : Les résultats sont récupérés de la base de données, formatés, puis renvoyés à l'interface web pour être affichés dynamiquement.
-
+**Flux** :
+- Saisie d’un formulaire avec les caractéristiques du lieu
+- Envoi à l’API backend
+- Validation, sauvegarde en base, retour d’accusé de réception
 
 ---
 
-### 🔹 Soumission d’Avis
-<div align="center">
-  <img src="images/DS_Avis.png" alt="Soumission d’Avis" width="400"/>
-</div>
+### C. Filtrage de Lieux
 
-Les utilisateurs peuvent évaluer un lieu en attribuant une note et en laissant un commentaire :
-- **Saisie de l'avis** : L'utilisateur saisit une note et un commentaire pour un lieu.
-- **Vérification et envoi** : L'interface web vérifie les données et les envoie à l'API backend.
-- **Validation et enregistrement** : Le backend valide l'authenticité de l'auteur via un token, vérifie les contraintes métiers (note entre 1 et 5, champ texte non vide), et enregistre l'avis en base de données.
-- **Mise à jour dynamique** : L'interface met à jour dynamiquement les avis affichés pour chaque lieu.
-
----
-
-### 🔹 Filtrage de Lieux
 <div align="center">
   <img src="images/DS_Filtrage-lieux.png" alt="Filtrage" width="400"/>
 </div>
 
-L’utilisateur saisit des critères (ville, type, note) :
-- **Saisie des critères** : L'utilisateur saisit les critères de filtrage via l'interface web.
-- **Envoi de la requête** : L'interface web envoie la requête contenant les filtres sélectionnés à l'API backend.
-- **Génération de la requête SQL** : Le backend génère dynamiquement une requête SQL sécurisée pour récupérer les lieux correspondant aux critères.
-- **Affichage des résultats** : Les résultats sont récupérés de la base de données, formatés, puis renvoyés à l'interface web pour être affichés dynamiquement, améliorant ainsi l'expérience utilisateur grâce à une recherche rapide et contextuelle.
+**Flux** :
+- Critères saisis par l’utilisateur (ville, type, note...)
+- Envoi au backend
+- Génération de la requête SQL
+- Récupération et affichage dynamiques
 
 ---
 
+### D. Soumission d’Avis
+
+<div align="center">
+  <img src="images/DS_Avis.png" alt="Soumission d’Avis" width="400"/>
+</div>
+
+**Flux** :
+- Saisie d’une note et d’un commentaire
+- Envoi via API avec token d’authentification
+- Validation et enregistrement si le token est valide
+- Rafraîchissement dynamique de l’interface
+
+---
+
+### 4. Conclusion
+Ce document offre une vision consolidée de l’architecture et de la dynamique de l’application HBnB. Il est destiné à être utilisé comme support de référence tout au long du développement, en assurant une compréhension commune de la structure et des flux métier du projet.
+
+---
 
 ## 👥 Équipe Projet
 
