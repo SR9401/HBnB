@@ -33,3 +33,24 @@ class User(BaseModel):
         self.__last_name = value
 
     @property
+    def email(self):
+        return self.__email
+    
+    @email.setter
+    def email (self,value)
+        if not isinstance(value,str)
+            raise TypeError("Email must be a string")
+        
+        if "@" not  in value or "." not in value.split("@")[-1]:
+            raise ValueError("Invalid email foramt")
+        self.__email = value
+
+    @property
+    def is_admin(self):
+        return self.__is_admin
+    
+    @is_admin.setter
+        def is_admin(self, value):
+            if not isinstance(value, bool):
+                raise TypeError("is_admin must be a boolean")
+        self.__is_admin = value
