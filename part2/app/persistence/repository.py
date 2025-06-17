@@ -53,4 +53,3 @@ class InMemoryRepository(Repository):
         return next((obj for obj in self._storage.values() if getattr(obj, attr_name) == attr_value), None)
 =======
         return next((obj for obj in self._storage.values() if getattr(obj, attr_name) == attr_value), None)
->>>>>>> 4b9aab4 (class usser debut)
