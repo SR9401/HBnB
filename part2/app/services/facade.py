@@ -91,7 +91,19 @@ class HBnBFacade:
 
     def get_all_places(self):
         # Placeholder for logic to retrieve all places
-        pass
+        places = Place.query.all()
+        result = []
+
+        for place in places:
+            result.append({
+                "id": place.id,
+                "title": place.title,
+                "latitude": place.latitude,
+                "longitude": place.longitude
+            })
+
+        return result
+
 
     def update_place(self, place_id, place_data):
         # Placeholder for logic to update a place
