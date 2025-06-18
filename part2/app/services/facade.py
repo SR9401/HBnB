@@ -67,7 +67,27 @@ class HBnBFacade:
 
     def get_place(self, place_id):
         # Placeholder for logic to retrieve a place by ID, including associated owner and amenities
-        pass
+        place = place_id.get("place_id")
+        if not place:
+            return None
+        owner = place.owner
+        amenities = place.amenities
+        return {
+        "id": place.id,
+        "title": place.title,
+        "description": place.description,
+        "latitude": place.latitude,
+        "longitude": place.longitude,
+        "owner": {
+            "id": owner.id,
+            "first_name": owner.first_name,
+            "last_name": owner.last_name,
+            "email": owner.email
+        },
+        "amenities": [
+            {"id": a.id, "name": a.name} for a in amenities
+        ]
+    }
 
     def get_all_places(self):
         # Placeholder for logic to retrieve all places
