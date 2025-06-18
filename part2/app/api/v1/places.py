@@ -1,4 +1,5 @@
 from flask_restx import Namespace, Resource, fields
+from flask import request, jsonify
 from app.services import facade
 
 api = Namespace('places', description='Place operations')
@@ -21,7 +22,7 @@ place_model = api.model('Place', {
     'title': fields.String(required=True, description='Title of the place'),
     'description': fields.String(description='Description of the place'),
     'price': fields.Float(required=True, description='Price per night'),
-    'latitude': fields.Float(required=True, description='Latitude of the place'),
+    'latitude': fields.Float(required=True,description='Latitude of the place'),
     'longitude': fields.Float(required=True, description='Longitude of the place'),
     'owner_id': fields.String(required=True, description='ID of the owner'),
     'amenities': fields.List(fields.String, required=True, description="List of amenities ID's")
@@ -34,8 +35,32 @@ class PlaceList(Resource):
     @api.response(400, 'Invalid input data')
     def post(self):
         """Register a new place"""
-        # Placeholder for the logic to register a new place
-        pass
+        data = request.get_json()
+
+        if not "title" in data:
+            return jsonify({"error": "Title is required"}), 400
+        if not "description" in data:
+            return jsonify({"error": "Description is missing"}), 400
+
+        price = data.get("price")
+        if not isinstance(price, (int, float)) or price < 0:
+            return jsonify({"error": "Price must be a non-negative number"}), 400
+
+        latitude = data.get("latitude")
+        if latitude is None or not isinstance(latitude, (int, float)) or not (-90 <= latitude <= 90):
+            return jsonify({"error": "Latitude must be between -90 and 90"}), 400
+
+        longitude = data.get("longitude")
+        if longitude is None or not isinstance(longitude, (int, float)) or not (-180 <= longitude <= 180):
+            return jsonify({"error": "Longitude must be between -180 and 180"}), 400
+
+        owner_id = data.get("owner_id")
+        if not owner_id:
+            return jsonify({"error": "Owner ID is required"}), 400
+
+        amenities = data.get("amenities")
+        if not isinstance(amenities, list):
+            return jsonify({"error": "Amenities must be a list of strings"}), 400
 
     @api.response(200, 'List of places retrieved successfully')
     def get(self):
