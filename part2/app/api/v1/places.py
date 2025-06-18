@@ -1,6 +1,6 @@
 from flask_restx import Namespace, Resource, fields
 from flask import request, jsonify
-from app.services import facade
+from app.services.facade import HBnBFacade
 
 api = Namespace('places', description='Place operations')
 
@@ -54,13 +54,9 @@ class PlaceList(Resource):
         if longitude is None or not isinstance(longitude, (int, float)) or not (-180 <= longitude <= 180):
             return jsonify({"error": "Longitude must be between -180 and 180"}), 400
 
-        owner_id = data.get("owner_id")
-        if not owner_id:
-            return jsonify({"error": "Owner ID is required"}), 400
-
-        amenities = data.get("amenities")
-        if not isinstance(amenities, list):
-            return jsonify({"error": "Amenities must be a list of strings"}), 400
+        facade = HBnBFacade()
+        new_place = facade.create_place(data)
+        return jsonify(new_place.to_dict()), 201
 
     @api.response(200, 'List of places retrieved successfully')
     def get(self):
