@@ -1,6 +1,7 @@
 from flask_restx import Namespace, Resource, fields
 from flask import request, jsonify
 from app.services.facade import HBnBFacade
+from app.models.place import Place
 
 api = Namespace('places', description='Place operations')
 
@@ -35,6 +36,7 @@ class PlaceList(Resource):
     @api.response(400, 'Invalid input data')
     def post(self):
         """Register a new place"""
+        # Placeholder for the logic to register a new place
         data = request.get_json()
 
         if not "title" in data:
@@ -62,7 +64,21 @@ class PlaceList(Resource):
     def get(self):
         """Retrieve a list of all places"""
         # Placeholder for logic to return a list of all places
-        pass
+        facade = HBnBFacade()
+        places = facade.get_all_places()
+
+        places_data = []
+
+        for place in places:
+            places_data.append({
+                "id": place.id,
+                "title": place.title,
+                "latitude": place.latitude,
+                "longitude": place.longitude
+            })
+
+        return places_data, 200
+
 
 @api.route('/<place_id>')
 class PlaceResource(Resource):
@@ -71,7 +87,10 @@ class PlaceResource(Resource):
     def get(self, place_id):
         """Get place details by ID"""
         # Placeholder for the logic to retrieve a place by ID, including associated owner and amenities
-        pass
+        facade = HBnBFacade()
+        result = facade.get_place(place_id)
+        if result is None:
+            return {"error": "Place not found"}, 404
 
     @api.expect(place_model)
     @api.response(200, 'Place updated successfully')
