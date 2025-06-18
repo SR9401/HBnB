@@ -69,14 +69,6 @@ class PlaceList(Resource):
 
         places_data = []
 
-        for place in places:
-            places_data.append({
-                "id": place.id,
-                "title": place.title,
-                "latitude": place.latitude,
-                "longitude": place.longitude
-            })
-
         return places_data, 200
 
 
