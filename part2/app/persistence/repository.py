@@ -49,4 +49,8 @@ class InMemoryRepository(Repository):
             del self._storage[obj_id]
 
     def get_by_attribute(self, attr_name, attr_value):
+<<<<<<< HEAD
         return next((obj for obj in self._storage.values() if getattr(obj, attr_name) == attr_value), None)
+=======
+        return next((obj for obj in self._storage.values() if getattr(obj, attr_name) == attr_value), None)
+>>>>>>> 4b9aab4 (class usser debut)

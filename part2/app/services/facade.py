@@ -15,4 +15,8 @@ class HBnBFacade:
     # Placeholder method for fetching a place by ID
     def get_place(self, place_id):
         # Logic will be implemented in later tasks
+<<<<<<< HEAD
         pass
+=======
+        pass
+>>>>>>> 4b9aab4 (class usser debut)

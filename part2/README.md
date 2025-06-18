@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Partie 2 : Implémentation de la logique métier et des points de terminaison de l'API
 
 Dans cette partie du projet **HBnB**, vous entrez dans la phase d’implémentation de l’application, basée sur la conception réalisée dans la partie précédente. L’objectif principal est de construire les couches **Présentation** et **Logique Métier** de l’application en utilisant **Python** et **Flask**.
@@ -36,3 +37,16 @@ Cette partie vise à créer une base **fonctionnelle** et **scalable** pour l’
 - **Couche Logique Métier** : Modéliser la logique principale de l'application (validations, relations, interactions entre objets).
 
 **NB** : L’authentification JWT et le contrôle d’accès par rôle seront abordés dans la Partie 3. Il est donc important de garder une architecture modulaire pour faciliter leur intégration ultérieure.
+=======
+# ⭐ Exigé par l’énoncé GitHub – Section "Document the Project Setup"
+
+## HBnB Project – Part 2
+
+This project is structured to follow a modular Python architecture with Flask and Flask-RESTx.
+
+### Structure Overview
+- `app/` contains all application logic (API, models, services, persistence)
+- `run.py` launches the Flask app
+- `config.py` manages environment configurations
+- `requirements.txt` lists required Python packages
+>>>>>>> 4b9aab4 (class usser debut)
