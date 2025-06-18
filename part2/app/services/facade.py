@@ -1,5 +1,9 @@
 from app.persistence.repository import InMemoryRepository
+from flask import jsonify
 from app.models.user import User
+from app.models.place import Place
+from app.models.amenity import Amenity
+
 class HBnBFacade:
     def __init__(self):
         self.user_repo = InMemoryRepository()
@@ -36,7 +40,30 @@ class HBnBFacade:
 
     def create_place(self, place_data):
     # Placeholder for logic to create a place, including validation for price, latitude, and longitude
-        pass
+        price = place_data.get("price")
+        if price is None or price < 0:
+            return jsonify({"error": "Price must be non-negative"}), 400
+
+        owner_id = place_data.get("owner_id")
+        if not owner_id:
+            return jsonify({"error": "Owner ID is required"}), 400
+
+        amenities = place_data.get("amenities")
+        if not isinstance(amenities, list):
+            return jsonify({"error": "Amenities must be a list of strings"}), 400
+
+        new_place = Place(
+            title=place_data["title"],
+            description=place_data.get("description", ""),
+            price=price,
+            latitude=place_data.get("latitude"),
+            longitude=place_data.get("longitude"),
+            owner_id=owner_id
+        )
+        
+        new_place.save()
+        return new_place
+
 
     def get_place(self, place_id):
         # Placeholder for logic to retrieve a place by ID, including associated owner and amenities
