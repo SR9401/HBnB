@@ -67,7 +67,7 @@ class PlaceList(Resource):
         facade = HBnBFacade()
         places = facade.get_all_places()
 
-        places_data = []
+        places_data = [place.to_dict() for place in places]
 
         return places_data, 200
 
@@ -83,6 +83,7 @@ class PlaceResource(Resource):
         result = facade.get_place(place_id)
         if result is None:
             return {"error": "Place not found"}, 404
+        return result.to_dict(), 200
 
     @api.expect(place_model)
     @api.response(200, 'Place updated successfully')
@@ -91,4 +92,32 @@ class PlaceResource(Resource):
     def put(self, place_id):
         """Update a place's information"""
         # Placeholder for the logic to update a place by ID
-        pass
+        data = request.get_json()
+        place = Place.query.get(place_id)
+
+        if place == None:
+            return {"error": "Place not found"}, 404
+
+        price = data.get("price")
+        if price is None or price < 0:
+            return jsonify({"error": "Price must be non-negative"}), 400
+
+        latitude = data.get("latitude")
+        if latitude is None or not isinstance(latitude, (int, float)) or not (-90 <= latitude <= 90):
+            return jsonify({"error": "Latitude must be between -90 and 90"}), 400
+
+        if "title" in data:
+            place.title = data["title"]
+        if "price" in data:
+            place.price = data["price"]
+        if "latitude" in data:
+            place.latitude = data["latitude"]
+        if "longitude" in data:
+            place.longitude = data["longitude"]
+        if "description" in data:
+            place.description = data["description"]
+
+        
+        place.save()
+
+        return {"message": "Place updated successfully"}, 200
