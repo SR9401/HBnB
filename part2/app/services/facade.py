@@ -67,7 +67,7 @@ class HBnBFacade:
 
     def get_place(self, place_id):
         # Placeholder for logic to retrieve a place by ID, including associated owner and amenities
-        place = place_id.get("place_id")
+        place = Place.query.get(place_id)
         if not place:
             return None
         owner = place.owner
@@ -107,7 +107,23 @@ class HBnBFacade:
 
     def update_place(self, place_id, place_data):
         # Placeholder for logic to update a place
-        pass
+        place = Place.query.get(place_id)
+        if not place:
+            return None
+
+        if "title" in place_data:
+            place.title = place_data["title"]
+        if "description" in place_data:
+            place.description = place_data["description"]
+        if "price" in place_data:
+            place.price = place_data["price"]
+        if "latitude" in place_data:
+            place.latitude = place_data["latitude"]
+        if "longitude" in place_data:
+            place.longitude = place_data["longitude"]
+
+        place.save()
+        return place
 
     def create_review(self, review_data):
     # Placeholder for logic to create a review, including validation for user_id, place_id, and rating
