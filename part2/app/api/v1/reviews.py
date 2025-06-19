@@ -60,3 +60,49 @@ class PlaceReviewList(Resource):
         """Get all reviews for a specific place"""
         # Placeholder for logic to return a list of reviews for a place
         pass
+
+    @api.expect(review_model)
+    @api.response(201, 'Review successfully created')
+    @api.response(400, 'Invalid input data')
+    
+    def post(self):
+    review_data = api.payload
+
+    if "user_id" not in review_data:
+        return {'error': 'User ID is required'}, 400
+
+    if "place_id" not in review_data:
+        return {'error': 'Place ID is required'}, 400
+
+    user_id = review_data.get("user_id")
+    user = facade.get_user(user_id)
+    if not user:
+        return {'error': 'User not found'}, 404
+
+    place_id = review_data.get("place_id")
+    place = facade.get_place(place_id)
+    if not place:
+        return {'error': 'Place not found'}, 404
+
+    try:
+        review = Review(
+            text=review_data.get("text"),
+            rating=review_data.get("rating"),
+            place=place,
+            user=user
+        )
+    except (TypeError, ValueError) as e:
+        return {'error': str(e)}, 400
+
+    try:
+        facade.review_repo.add(review)
+    except Exception:
+        return {'error': 'Failed to save review'}, 500
+
+    return {
+        'id': review.id,
+        'text': review.text,
+        'rating': review.rating,
+        'user_id': user.id,
+        'place_id': place.id
+    }, 201
