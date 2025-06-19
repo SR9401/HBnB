@@ -60,3 +60,11 @@ class PlaceReviewList(Resource):
         """Get all reviews for a specific place"""
         # Placeholder for logic to return a list of reviews for a place
         pass
+
+    @api.expect(review_model)
+    @api.response(201, 'Review successfully created')
+    @api.response(400, 'Invalid input data')
+    
+    def post(self):
+        review_data = api.payload
+        facade.get_user(user_id)
