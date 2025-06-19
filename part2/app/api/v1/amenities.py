@@ -1,6 +1,7 @@
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
 from flask import jsonify
+from app.models.amenity import Amenity
 
 api = Namespace('amenities', description='Amenity operations')
 
@@ -16,8 +17,8 @@ class AmenityList(Resource):
     @api.response(400, 'Invalid input data')
     def post(self):
         """Register a new amenity"""
-        user_data = api.payload
-        return user_data
+        amenity_data = api.payload
+        return amenity_data
         
 
     @api.response(200, 'List of amenities retrieved successfully')
@@ -32,9 +33,11 @@ class AmenityResource(Resource):
     @api.response(404, 'Amenity not found')
     def get(self, amenity_id):
         """Get amenity details by ID"""
-        
+        amenity = facade.get_amenity(amenity_id)
+        if not amenity:
+            return {'error': 'Amenity not found'}, 404
         return {
-            'id': amenity_id,
+            'id': amenity.id,
             'name': amenity.name
         }, 200
 
