@@ -1,5 +1,6 @@
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
+from flask import jsonify
 
 api = Namespace('amenities', description='Amenity operations')
 
@@ -15,14 +16,15 @@ class AmenityList(Resource):
     @api.response(400, 'Invalid input data')
     def post(self):
         """Register a new amenity"""
-        # Placeholder for the logic to register a new amenity
-        pass
+        user_data = api.payload
+        return user_data
+        
 
     @api.response(200, 'List of amenities retrieved successfully')
     def get(self):
         """Retrieve a list of all amenities"""
-        # Placeholder for logic to return a list of all amenities
-        pass
+        result = facade.get_all_amenities()
+        return jsonify(result), 200
 
 @api.route('/<amenity_id>')
 class AmenityResource(Resource):
@@ -30,8 +32,11 @@ class AmenityResource(Resource):
     @api.response(404, 'Amenity not found')
     def get(self, amenity_id):
         """Get amenity details by ID"""
-        # Placeholder for the logic to retrieve an amenity by ID
-        pass
+        
+        return {
+            'id': amenity_id,
+            'name': amenity.name
+        }, 200
 
     @api.expect(amenity_model)
     @api.response(200, 'Amenity updated successfully')
