@@ -3,7 +3,6 @@ from app.models.user import User
 from app.models.amenity import Amenity
 from app.models.place import Place
 from app.models.review import Review
-from flask import request, jsonify
 
 class HBnBFacade:
     def __init__(self):
@@ -12,6 +11,7 @@ class HBnBFacade:
         self.review_repo = InMemoryRepository()
         self.amenity_repo = InMemoryRepository()
 
+    # USER
     def create_user(self, user_data):
         user = User(**user_data)
         self.user_repo.add(user)
@@ -23,6 +23,7 @@ class HBnBFacade:
     def get_user_by_email(self, email):
         return self.user_repo.get_by_attribute('email', email)
 
+    # AMENITY
     def create_amenity(self, amenity_data):
         amenity = Amenity(**amenity_data)
         self.amenity_repo.add(amenity)
@@ -32,152 +33,72 @@ class HBnBFacade:
         return self.amenity_repo.get(amenity_id)
 
     def get_all_amenities(self):
-        amenities = self.amenity_repo.get_all()
-        return [amenity.to_dict() for amenity in amenities]
+        return [a.to_dict() for a in self.amenity_repo.get_all()]
 
-    def update_amenity(self, amenity_id, amenity_data):
+    def update_amenity(self, amenity_id, data):
         amenity = self.amenity_repo.get(amenity_id)
         if not amenity:
             return None
-        amenity.update(amenity_data)
+        amenity.update(data)
         self.amenity_repo.save(amenity)
         return amenity
 
+    # PLACE
     def create_place(self, place_data):
-        price = place_data.get("price")
-        if price is None or price < 0:
-            return jsonify({"error": "Price must be non-negative"}), 400
-
-        owner_id = place_data.get("owner_id")
-        if not owner_id:
-            return jsonify({"error": "Owner ID is required"}), 400
-
-        owner = User.query.get(owner_id)
-        if not owner:
-            return jsonify({"error": "Owner not found"}), 400
-
-        amenities = place_data.get("amenities")
-        if not isinstance(amenities, list):
-            return jsonify({"error": "Amenities must be a list of strings"}), 400
-
-        new_place = Place(
-            title=place_data["title"],
-            description=place_data.get("description", ""),
-            price=price,
-            latitude=place_data.get("latitude"),
-            longitude=place_data.get("longitude"),
-            owner=owner
-        )
-
-        new_place.save()
-        return new_place
-
-    def get_place(self, place_id):
-        place = Place.query.get(place_id)
-        if not place:
-            return None
-        owner = place.owner
-        amenities = place.amenities
-        return {
-            "id": place.id,
-            "title": place.title,
-            "description": place.description,
-            "latitude": place.latitude,
-            "longitude": place.longitude,
-            "owner": {
-                "id": owner.id,
-                "first_name": owner.first_name,
-                "last_name": owner.last_name,
-                "email": owner.email
-            },
-            "amenities": [
-                {"id": a.id, "name": a.name} for a in amenities
-            ]
-        }
-
-    def get_all_places(self):
-        places = Place.query.all()
-        result = []
-
-        for place in places:
-            result.append({
-                "id": place.id,
-                "title": place.title,
-                "latitude": place.latitude,
-                "longitude": place.longitude
-            })
-
-        return result
-
-    def update_place(self, place_id, place_data):
-        place = Place.query.get(place_id)
-        if not place:
-            return None
-
-        if "title" in place_data:
-            place.title = place_data["title"]
-        if "description" in place_data:
-            place.description = place_data["description"]
-        if "price" in place_data:
-            place.price = place_data["price"]
-        if "latitude" in place_data:
-            place.latitude = place_data["latitude"]
-        if "longitude" in place_data:
-            place.longitude = place_data["longitude"]
-
-        place.save()
+        place = Place(**place_data)
+        self.place_repo.add(place)
         return place
 
+    def get_place(self, place_id):
+        return self.place_repo.get(place_id)
+
+    def get_all_places(self):
+        return [p.to_dict() for p in self.place_repo.get_all()]
+
+    def update_place(self, place_id, data):
+        place = self.place_repo.get(place_id)
+        if not place:
+            return None
+        for key in ["title", "description", "price", "latitude", "longitude"]:
+            if key in data:
+                setattr(place, key, data[key])
+        self.place_repo.save(place)
+        return place
+
+    # REVIEW
     def create_review(self, review_data):
-        user_id = review_data.get("user_id")
-        place_id = review_data.get("place_id")
-        text = review_data.get("text")
+        user = self.user_repo.get(review_data.get("user_id"))
+        place = self.place_repo.get(review_data.get("place_id"))
         rating = review_data.get("rating")
 
-        if not all([user_id, place_id, text, rating]):
+        if not all([user, place, rating, review_data.get("text")]):
             return {"error": "Missing required fields"}, 400
-
         if not isinstance(rating, int) or not (1 <= rating <= 5):
             return {"error": "Rating must be between 1 and 5"}, 400
 
-        user = self.user_repo.get(user_id)
-        if not user:
-            return {"error": "User not found"}, 404
-
-        place = self.place_repo.get(place_id)
-        if not place:
-            return {"error": "Place not found"}, 404
-
-        review = Review(user=user, place=place, text=text, rating=rating)
+        review = Review(user=user, place=place, text=review_data["text"], rating=rating)
         self.review_repo.add(review)
-
         return review.to_dict(), 201
 
     def get_review(self, review_id):
         review = self.review_repo.get(review_id)
-        if not review:
-            return {"error": "Review not found"}, 404
-        return review.to_dict(), 200
+        return ({"error": "Review not found"}, 404) if not review else (review.to_dict(), 200)
 
     def get_all_reviews(self):
-        reviews = self.review_repo.get_all()
-        return [review.to_dict() for review in reviews], 200
+        return [r.to_dict() for r in self.review_repo.get_all()], 200
 
     def get_reviews_by_place(self, place_id):
-        reviews = self.review_repo.get_all()
-        filtered_reviews = [r for r in reviews if r.place.id == place_id]
-        return [r.to_dict() for r in filtered_reviews], 200
+        return [r.to_dict() for r in self.review_repo.get_all() if r.place.id == place_id], 200
 
-    def update_review(self, review_id, review_data):
+    def update_review(self, review_id, data):
         review = self.review_repo.get(review_id)
         if not review:
             return {"error": "Review not found"}, 404
 
-        if "text" in review_data:
-            review.text = review_data["text"]
-
-        if "rating" in review_data:
-            rating = review_data["rating"]
+        if "text" in data:
+            review.text = data["text"]
+        if "rating" in data:
+            rating = data["rating"]
             if not isinstance(rating, int) or not (1 <= rating <= 5):
                 return {"error": "Rating must be between 1 and 5"}, 400
             review.rating = rating
@@ -190,4 +111,4 @@ class HBnBFacade:
         if not review:
             return {"error": "Review not found"}, 404
         self.review_repo.delete(review_id)
-        return {"message": "Review deleted"}, 200
+        return {"message": "Review deleted successfully"}, 200
