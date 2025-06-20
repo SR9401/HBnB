@@ -1,7 +1,6 @@
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
-from flask import request  # ❌ on retire jsonify car plus utilisé ici
-
+from flask import request
 api = Namespace('amenities', description='Amenity operations')
 
 # Define the amenity model for input validation and documentation
@@ -39,7 +38,7 @@ class AmenityList(Resource):
         """Retrieve a list of all amenities"""
         try:
             result = facade.get_all_amenities()
-            return result, 200  # ✅ Correction ici
+            return result, 200
         except Exception as e:
             return {'error': f'Failed to retrieve amenities: {str(e)}'}, 500
 
