@@ -39,28 +39,28 @@ class PlaceList(Resource):
             data = request.get_json()
 
             if not data.get("title"):
-                return jsonify({"error": "Title is required"}), 400
+                return ({"error": "Title is required"}), 400
             if not data.get("description"):
-                return jsonify({"error": "Description is missing"}), 400
+                return ({"error": "Description is missing"}), 400
 
             price = data.get("price")
             if not isinstance(price, (int, float)) or price < 0:
-                return jsonify({"error": "Price must be a non-negative number"}), 400
+                return ({"error": "Price must be a non-negative number"}), 400
 
             latitude = data.get("latitude")
             if latitude is None or not isinstance(latitude, (int, float)) or not (-90 <= latitude <= 90):
-                return jsonify({"error": "Latitude must be between -90 and 90"}), 400
+                return ({"error": "Latitude must be between -90 and 90"}), 400
 
             longitude = data.get("longitude")
             if longitude is None or not isinstance(longitude, (int, float)) or not (-180 <= longitude <= 180):
-                return jsonify({"error": "Longitude must be between -180 and 180"}), 400
+                return ({"error": "Longitude must be between -180 and 180"}), 400
 
             facade = HBnBFacade()
             new_place = facade.create_place(data)
             return jsonify(new_place.to_dict()), 201
 
         except Exception as e:
-            return jsonify({"error": str(e)}), 500
+            return ({"error": str(e)}), 500
 
     @api.response(200, 'List of places retrieved successfully')
     def get(self):
