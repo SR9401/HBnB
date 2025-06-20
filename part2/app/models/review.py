@@ -58,3 +58,12 @@ class Review(BaseModel):
             raise TypeError("user must be a User instance")
         self.__user = value
         self.save()
+
+    def to_dict(self):
+            return {
+                'id': self.id,
+                'text': self.text,
+                'rating': self.rating,
+                'place_id': self.place.id,
+                'user_id': self.user.id
+            }
