@@ -47,6 +47,11 @@ class HBnBFacade:
         owner_id = place_data.get("owner_id")
         if not owner_id:
             return jsonify({"error": "Owner ID is required"}), 400
+        
+        owner = User.query.get(owner_id)
+        if not owner:
+            return jsonify({"error": "Owner not found"}), 400
+
 
         amenities = place_data.get("amenities")
         if not isinstance(amenities, list):
@@ -58,7 +63,7 @@ class HBnBFacade:
             price=price,
             latitude=place_data.get("latitude"),
             longitude=place_data.get("longitude"),
-            owner_id=owner_id
+            owner=owner
         )
         
         new_place.save()

@@ -21,8 +21,8 @@ class User(BaseModel):
         self.__first_name = value
 
         @property
-    def last_name(self):
-        return self.__last_name
+        def last_name(self):
+            return self.__last_name
 
     @last_name.setter
     def last_name(self, value):

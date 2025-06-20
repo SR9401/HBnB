@@ -1,5 +1,8 @@
 from app.models.base_model import BaseModel
 from app.models.user import User
+from flask_restx import Namespace, Resource, fields
+
+api = Namespace('places', description='Place operations')
 class Place(BaseModel):
     def __init__(self, title, description, price, latitude, longitude, owner):
         super().__init__()
@@ -67,7 +70,7 @@ class Place(BaseModel):
     
     @longitude.setter
     def longitude(self, value):
-        if not isinstance (value, float):
+        if not isinstance (value, (int,float)):
             raise TypeError("Longitude must be a float")
         if value < -180.0 or value > 180.0:
             raise ValueError("Longitude must be between -180.0 and 180.0")
