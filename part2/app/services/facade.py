@@ -2,6 +2,7 @@ from app.persistence.repository import InMemoryRepository
 from app.models.user import User
 from app.models.amenity import Amenity
 from app.models.place import Place
+from app.models.review import Review
 from flask import request, jsonify
 
 class HBnBFacade:
@@ -142,24 +143,70 @@ class HBnBFacade:
 
     def create_review(self, review_data):
     # Placeholder for logic to create a review, including validation for user_id, place_id, and rating
-        pass
+        user_id = review_data.get("user_id")
+        place_id = review_data.get("place_id")
+        text = review_data.get("text")
+        rating = review_data.get("rating")
+
+        if not all([user_id, place_id, text, rating]):
+            return {"error": "Missing required fields"}, 400
+
+        if not isinstance(rating, int) or not (1 <= rating <= 5):
+            return {"error": "Rating must be between 1 and 5"}, 400
+
+        user = self.user_repo.get(user_id)
+        if not user:
+            return {"error": "User not found"}, 404
+
+        place = self.place_repo.get(place_id)
+        if not place:
+            return {"error": "Place not found"}, 404
+
+        review = Review(user=user, place=place, text=text, rating=rating)
+        self.review_repo.add(review)
+
+        return review.to_dict(), 201
 
     def get_review(self, review_id):
         # Placeholder for logic to retrieve a review by ID
-        pass
+        review = self.review_repo.get(review_id)
+        if not review:
+            return {"error": "Review not found"}, 404
+        return review.to_dict(), 200
 
     def get_all_reviews(self):
         # Placeholder for logic to retrieve all reviews
-        pass
+        reviews = self.review_repo.get_all()
+        return [review.to_dict() for review in reviews], 200
 
     def get_reviews_by_place(self, place_id):
         # Placeholder for logic to retrieve all reviews for a specific place
-        pass
+        reviews = self.review_repo.get_all()
+        filtered_reviews = [r for r in reviews if r.place.id == place_id]
+        return [r.to_dict() for r in filtered_reviews], 200
 
     def update_review(self, review_id, review_data):
         # Placeholder for logic to update a review
-        pass
+        review = self.review_repo.get(review_id)
+        if not review:
+            return {"error": "Review not found"}, 404
+        
+        if "text" in review_data:
+            review.text = review_data["text"]
+
+        if "rating" in review_data:
+            rating = review_data["rating"]
+            if not isinstance(rating, int) or not (1 <= rating <= 5):
+                return {"error": "Rating must be between 1 and 5"}, 400
+            review.rating = rating
+
+        review.save()
+        return review.to_dict(), 200
 
     def delete_review(self, review_id):
         # Placeholder for logic to delete a review
-        pass
+        review = self.review_repo.get(review_id)
+        if not review:
+            return {"error": "Review not found"}, 404
+        self.review_repo.delete(review_id)
+        return {"message": "Review deleted"}, 200
