@@ -96,33 +96,33 @@ class PlaceResource(Resource):
         """Update a place's information"""
         try:
             data = request.get_json()
-            place = Place.query.get(place_id)
-
+            facade = HBnBFacade()
+            place = facade.get_place(place_id)
             if place is None:
                 return {"error": "Place not found"}, 404
 
             price = data.get("price")
-            if price is None or price < 0:
-                return jsonify({"error": "Price must be non-negative"}), 400
+            if price is not None and (not isinstance(price, (int, float)) or price < 0):
+                return {"error": "Price must be a non-negative number"}, 400
 
             latitude = data.get("latitude")
-            if latitude is None or not isinstance(latitude, (int, float)) or not (-90 <= latitude <= 90):
-                return jsonify({"error": "Latitude must be between -90 and 90"}), 400
+            if latitude is not None and (not isinstance(latitude, (int, float)) or not (-90 <= latitude <= 90)):
+                return {"error": "Latitude must be between -90 and 90"}, 400
 
-            # Update only provided fields
-            if "title" in data:
-                place.title = data["title"]
-            if "price" in data:
-                place.price = data["price"]
-            if "latitude" in data:
-                place.latitude = data["latitude"]
-            if "longitude" in data:
-                place.longitude = data["longitude"]
-            if "description" in data:
-                place.description = data["description"]
+            longitude = data.get("longitude")
+            if longitude is not None and (not isinstance(longitude, (int, float)) or not (-180 <= longitude <= 180)):
+                return {"error": "Longitude must be between -180 and 180"}, 400
+
+            if "title" in data and not data["title"].strip():
+                return {"error": "Title cannot be empty"}, 400
+
+            # Update fields if present
+            for field in ['title', 'price', 'latitude', 'longitude', 'description']:
+                if field in data:
+                    setattr(place, field, data[field])
 
             place.save()
             return {"message": "Place updated successfully"}, 200
-
+        
         except Exception as e:
-            return jsonify({"error": str(e)}), 500
+            return {"error": str(e)}, 500
