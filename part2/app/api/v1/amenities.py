@@ -69,7 +69,7 @@ class AmenityResource(Resource):
     def put(self, amenity_id):
         """Update an amenity's information"""
         try:
-            data = request.get_json()
+            data = api.payload
             if not data or 'name' not in data:
                 return {'error': "Missing 'name' field in the input data"}, 400
 
