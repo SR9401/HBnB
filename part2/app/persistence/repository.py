@@ -50,6 +50,9 @@ class InMemoryRepository(Repository):
 
     def get_by_attribute(self, attr_name, attr_value):
 <<<<<<< HEAD
+<<<<<<< HEAD
         return next((obj for obj in self._storage.values() if getattr(obj, attr_name) == attr_value), None)
 =======
+=======
+>>>>>>> main
         return next((obj for obj in self._storage.values() if getattr(obj, attr_name) == attr_value), None)

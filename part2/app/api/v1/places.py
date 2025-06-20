@@ -1,9 +1,19 @@
 from flask_restx import Namespace, Resource, fields
+<<<<<<< HEAD
 from app.services import facade
 
 api = Namespace('places', description='Place operations')
 
 # Define the models for related entities
+=======
+from flask import request, jsonify
+from app.services.facade import HBnBFacade
+from app.models.place import Place
+
+api = Namespace('places', description='Place operations')
+
+# Models
+>>>>>>> main
 amenity_model = api.model('PlaceAmenity', {
     'id': fields.String(description='Amenity ID'),
     'name': fields.String(description='Name of the amenity')
@@ -16,7 +26,10 @@ user_model = api.model('PlaceUser', {
     'email': fields.String(description='Email of the owner')
 })
 
+<<<<<<< HEAD
 # Define the place model for input validation and documentation
+=======
+>>>>>>> main
 place_model = api.model('Place', {
     'title': fields.String(required=True, description='Title of the place'),
     'description': fields.String(description='Description of the place'),
@@ -34,14 +47,53 @@ class PlaceList(Resource):
     @api.response(400, 'Invalid input data')
     def post(self):
         """Register a new place"""
+<<<<<<< HEAD
         # Placeholder for the logic to register a new place
         pass
+=======
+        try:
+            data = request.get_json()
+
+            if not data.get("title"):
+                return jsonify({"error": "Title is required"}), 400
+            if not data.get("description"):
+                return jsonify({"error": "Description is missing"}), 400
+
+            price = data.get("price")
+            if not isinstance(price, (int, float)) or price < 0:
+                return jsonify({"error": "Price must be a non-negative number"}), 400
+
+            latitude = data.get("latitude")
+            if latitude is None or not isinstance(latitude, (int, float)) or not (-90 <= latitude <= 90):
+                return jsonify({"error": "Latitude must be between -90 and 90"}), 400
+
+            longitude = data.get("longitude")
+            if longitude is None or not isinstance(longitude, (int, float)) or not (-180 <= longitude <= 180):
+                return jsonify({"error": "Longitude must be between -180 and 180"}), 400
+
+            facade = HBnBFacade()
+            new_place = facade.create_place(data)
+            return jsonify(new_place.to_dict()), 201
+
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+>>>>>>> main
 
     @api.response(200, 'List of places retrieved successfully')
     def get(self):
         """Retrieve a list of all places"""
+<<<<<<< HEAD
         # Placeholder for logic to return a list of all places
         pass
+=======
+        try:
+            facade = HBnBFacade()
+            places = facade.get_all_places()
+            return [place.to_dict() for place in places], 200
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
+>>>>>>> main
 
 @api.route('/<place_id>')
 class PlaceResource(Resource):
@@ -49,8 +101,19 @@ class PlaceResource(Resource):
     @api.response(404, 'Place not found')
     def get(self, place_id):
         """Get place details by ID"""
+<<<<<<< HEAD
         # Placeholder for the logic to retrieve a place by ID, including associated owner and amenities
         pass
+=======
+        try:
+            facade = HBnBFacade()
+            result = facade.get_place(place_id)
+            if result is None:
+                return {"error": "Place not found"}, 404
+            return result.to_dict(), 200
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+>>>>>>> main
 
     @api.expect(place_model)
     @api.response(200, 'Place updated successfully')
@@ -58,5 +121,40 @@ class PlaceResource(Resource):
     @api.response(400, 'Invalid input data')
     def put(self, place_id):
         """Update a place's information"""
+<<<<<<< HEAD
         # Placeholder for the logic to update a place by ID
         pass
+=======
+        try:
+            data = request.get_json()
+            place = Place.query.get(place_id)
+
+            if place is None:
+                return {"error": "Place not found"}, 404
+
+            price = data.get("price")
+            if price is None or price < 0:
+                return jsonify({"error": "Price must be non-negative"}), 400
+
+            latitude = data.get("latitude")
+            if latitude is None or not isinstance(latitude, (int, float)) or not (-90 <= latitude <= 90):
+                return jsonify({"error": "Latitude must be between -90 and 90"}), 400
+
+            # Update only provided fields
+            if "title" in data:
+                place.title = data["title"]
+            if "price" in data:
+                place.price = data["price"]
+            if "latitude" in data:
+                place.latitude = data["latitude"]
+            if "longitude" in data:
+                place.longitude = data["longitude"]
+            if "description" in data:
+                place.description = data["description"]
+
+            place.save()
+            return {"message": "Place updated successfully"}, 200
+
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+>>>>>>> main

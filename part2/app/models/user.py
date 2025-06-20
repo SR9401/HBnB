@@ -1,5 +1,6 @@
 from app.models.base_model import BaseModel
 
+
 class User(BaseModel):
     def __init__(self, first_name, last_name, email, is_admin=False):
         super().__init__()
@@ -20,7 +21,7 @@ class User(BaseModel):
             raise ValueError("First name must not exceed 50 characters")
         self.__first_name = value
 
-        @property
+    @property
     def last_name(self):
         return self.__last_name
 
@@ -35,22 +36,21 @@ class User(BaseModel):
     @property
     def email(self):
         return self.__email
-    
+
     @email.setter
-    def email (self,value)
-        if not isinstance(value,str)
+    def email(self, value):
+        if not isinstance(value, str):
             raise TypeError("Email must be a string")
-        
-        if "@" not  in value or "." not in value.split("@")[-1]:
-            raise ValueError("Invalid email foramt")
+        if "@" not in value or "." not in value.split("@")[-1]:
+            raise ValueError("Invalid email format")
         self.__email = value
 
     @property
     def is_admin(self):
         return self.__is_admin
-    
+
     @is_admin.setter
-        def is_admin(self, value):
-            if not isinstance(value, bool):
-                raise TypeError("is_admin must be a boolean")
+    def is_admin(self, value):
+        if not isinstance(value, bool):
+            raise TypeError("is_admin must be a boolean")
         self.__is_admin = value
