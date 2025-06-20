@@ -1,68 +1,84 @@
-import pytest
-from app import create_app
+from flask_restx import Namespace, Resource, fields
+from app.services import facade
 
-@pytest.fixture
-def client():
-    app = create_app()
-    app.testing = True
-    return app.test_client()
+api = Namespace('users', description='User operations')
 
-def test_create_valid_user(client):
-    response = client.post('/api/v1/users/', json={
-        "first_name": "Alice",
-        "last_name": "Smith",
-        "email": "alice@example.com"
-    })
-    assert response.status_code == 201
-    data = response.get_json()
-    assert "id" in data
-    assert data["email"] == "alice@example.com"
+# Define the user model for input validation and documentation
+user_model = api.model('User', {
+    'first_name': fields.String(required=True, description='First name of the user'),
+    'last_name': fields.String(required=True, description='Last name of the user'),
+    'email': fields.String(required=True, description='Email of the user')
+})
 
-def test_create_user_invalid_email(client):
-    response = client.post('/api/v1/users/', json={
-        "first_name": "Bob",
-        "last_name": "Brown",
-        "email": "bobemail.com"
-    })
-    assert response.status_code == 400
 
-def test_create_user_empty_fields(client):
-    response = client.post('/api/v1/users/', json={
-        "first_name": "",
-        "last_name": "",
-        "email": ""
-    })
-    assert response.status_code == 400
+@api.route('/')
+class UserList(Resource):
+    @api.expect(user_model, validate=True)
+    @api.response(201, 'User successfully created')
+    @api.response(400, 'Email already registered')
+    @api.response(400, 'Invalid input data')
+    def post(self):
+        """Register a new user"""
+        user_data = api.payload
 
-def test_create_user_long_first_name(client):
-    response = client.post('/api/v1/users/', json={
-        "first_name": "A" * 51,
-        "last_name": "Doe",
-        "email": "longname@example.com"
-    })
-    assert response.status_code == 400
+        existing_user = facade.get_user_by_email(user_data['email'])
+        if existing_user:
+            return {'error': 'Email already registered'}, 400
 
-def test_create_user_duplicate_email(client):
-    # First creation
-    client.post('/api/v1/users/', json={
-        "first_name": "John",
-        "last_name": "Doe",
-        "email": "duplicate@example.com"
-    })
-    # Second with same email
-    response = client.post('/api/v1/users/', json={
-        "first_name": "Jane",
-        "last_name": "Doe",
-        "email": "duplicate@example.com"
-    })
-    assert response.status_code == 400
-    assert "Email already registered" in response.get_json().get("error", "")
+        new_user = facade.create_user(user_data)
+        return {
+            'id': new_user.id,
+            'first_name': new_user.first_name,
+            'last_name': new_user.last_name,
+            'email': new_user.email
+        }, 201
 
-def test_get_all_users(client):
-    response = client.get('/api/v1/users/')
-    assert response.status_code == 200
-    assert isinstance(response.get_json(), list)
+    @api.response(200, 'List of users retrieved successfully')
+    def get(self):
+        """Get list of all users"""
+        users = facade.user_repo.get_all()
+        result = []
+        for user in users:
+            result.append({
+                'id': user.id,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'email': user.email
+            })
+        return result, 200
 
-def test_get_nonexistent_user(client):
-    response = client.get('/api/v1/users/nonexistent-id')
-    assert response.status_code == 404
+
+@api.route('/<user_id>')
+class UserResource(Resource):
+    @api.response(200, 'User details retrieved successfully')
+    @api.response(404, 'User not found')
+    def get(self, user_id):
+        """Get user details by ID"""
+        user = facade.get_user(user_id)
+        if not user:
+            return {'error': 'User not found'}, 404
+
+        return {
+            'id': user.id,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'email': user.email
+        }, 200
+
+    @api.expect(user_model, validate=True)
+    @api.response(200, 'User updated successfully')
+    @api.response(404, 'User not found')
+    def put(self, user_id):
+        """Update a user by ID"""
+        user = facade.get_user(user_id)
+        if not user:
+            return {'error': 'User not found'}, 404
+
+        user.update(api.payload)
+        user.save()
+        return {
+            'id': user.id,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'email': user.email
+        }, 200
