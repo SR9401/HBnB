@@ -1,6 +1,6 @@
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
-from flask import jsonify, request
+from flask import request  # ❌ on retire jsonify car plus utilisé ici
 
 api = Namespace('amenities', description='Amenity operations')
 
@@ -39,9 +39,10 @@ class AmenityList(Resource):
         """Retrieve a list of all amenities"""
         try:
             result = facade.get_all_amenities()
-            return jsonify(result), 200
+            return result, 200  # ✅ Correction ici
         except Exception as e:
             return {'error': f'Failed to retrieve amenities: {str(e)}'}, 500
+
 
 @api.route('/<amenity_id>')
 class AmenityResource(Resource):
