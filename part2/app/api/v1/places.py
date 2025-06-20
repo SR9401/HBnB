@@ -57,7 +57,7 @@ class PlaceList(Resource):
 
             facade = HBnBFacade()
             new_place = facade.create_place(data)
-            return jsonify(new_place.to_dict()), 201
+            return (new_place.to_dict()), 201
 
         except Exception as e:
             return ({"error": str(e)}), 500
