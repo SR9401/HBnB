@@ -1,5 +1,7 @@
 from app.models.base_model import BaseModel
 from app.models.user import User
+
+
 class Place(BaseModel):
     def __init__(self, title, description, price, latitude, longitude, owner):
         super().__init__()
@@ -8,9 +10,11 @@ class Place(BaseModel):
         self.price = price
         self.latitude = latitude
         self.longitude = longitude
-        self.owner = owner
-        
-
+        self._owner = owner
+        self.reviews = []  # List to store related reviews
+        self.amenities = []  # List to store related amenities
+    
+    
     @property
     def title(self):
         return self.__title
@@ -72,24 +76,36 @@ class Place(BaseModel):
             raise TypeError("Longitude must be a float")
         if value < -180.0 or value > 180.0:
             raise ValueError("Longitude must be between -180.0 and 180.0")
-        self.__longitude = float(value)
+        self.__longitude = value
         self.save()        
 
 
+    @property
+    def owner(self):
+        return self.__owner
+
     @owner.setter
     def owner(self, value):
-        if not isinstance(value, User):
+         if not isinstance(value, User):
             raise TypeError("Owner must be a User instance")
-        self._owner = value
-        self.save()
+         self.__owner = value
+         self.save()
 
-    def to_dict(self):
-        return {
+    def add_review(self, review):
+        """Add a review to the place."""
+        self.reviews.append(review)
+
+    def add_amenity(self, amenity):
+        """Add an amenity to the place."""
+        self.amenities.append(amenity)
+
+    def to_dict(self, full=False):
+        base = {
             'id': self.id,
             'title': self.title,
             'description': self.description,
             'price': self.price,
             'latitude': self.latitude,
             'longitude': self.longitude,
-            'owner_id': self.owner.id if self.owner else None
+            'owner_id': self.owner.id if hasattr(self.owner, 'id') else self.owner,
         }
