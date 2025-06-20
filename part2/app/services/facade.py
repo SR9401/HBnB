@@ -48,19 +48,95 @@ class HBnBFacade:
 
     def create_place(self, place_data):
     # Placeholder for logic to create a place, including validation for price, latitude, and longitude
-        pass
+        price = place_data.get("price")
+        if price is None or price < 0:
+            return jsonify({"error": "Price must be non-negative"}), 400
+
+        owner_id = place_data.get("owner_id")
+        if not owner_id:
+            return jsonify({"error": "Owner ID is required"}), 400
+        
+        owner = User.query.get(owner_id)
+        if not owner:
+            return jsonify({"error": "Owner not found"}), 400
+
+
+        amenities = place_data.get("amenities")
+        if not isinstance(amenities, list):
+            return jsonify({"error": "Amenities must be a list of strings"}), 400
+
+        new_place = Place(
+            title=place_data["title"],
+            description=place_data.get("description", ""),
+            price=price,
+            latitude=place_data.get("latitude"),
+            longitude=place_data.get("longitude"),
+            owner=owner
+        )
+        
+        new_place.save()
+        return new_place
+
 
     def get_place(self, place_id):
         # Placeholder for logic to retrieve a place by ID, including associated owner and amenities
-        pass
+        place = Place.query.get(place_id)
+        if not place:
+            return None
+        owner = place.owner
+        amenities = place.amenities
+        return {
+        "id": place.id,
+        "title": place.title,
+        "description": place.description,
+        "latitude": place.latitude,
+        "longitude": place.longitude,
+        "owner": {
+            "id": owner.id,
+            "first_name": owner.first_name,
+            "last_name": owner.last_name,
+            "email": owner.email
+        },
+        "amenities": [
+            {"id": a.id, "name": a.name} for a in amenities
+        ]
+    }
 
     def get_all_places(self):
         # Placeholder for logic to retrieve all places
-        pass
+        places = Place.query.all()
+        result = []
+
+        for place in places:
+            result.append({
+                "id": place.id,
+                "title": place.title,
+                "latitude": place.latitude,
+                "longitude": place.longitude
+            })
+
+        return result
+
 
     def update_place(self, place_id, place_data):
         # Placeholder for logic to update a place
-        pass
+        place = Place.query.get(place_id)
+        if not place:
+            return None
+
+        if "title" in place_data:
+            place.title = place_data["title"]
+        if "description" in place_data:
+            place.description = place_data["description"]
+        if "price" in place_data:
+            place.price = place_data["price"]
+        if "latitude" in place_data:
+            place.latitude = place_data["latitude"]
+        if "longitude" in place_data:
+            place.longitude = place_data["longitude"]
+
+        place.save()
+        return place
 
     def create_review(self, review_data):
     # Placeholder for logic to create a review, including validation for user_id, place_id, and rating
