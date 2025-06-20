@@ -1,7 +1,7 @@
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
-from flask import jsonify
-from app.models.amenity import Amenity
+from flask import jsonify, request
+
 
 api = Namespace('amenities', description='Amenity operations')
 
@@ -18,15 +18,19 @@ class AmenityList(Resource):
     def post(self):
         """Register a new amenity"""
         amenity_data = api.payload
+        existing_amenities = facade.get_all_amenities()
+
         
-        existing_amenity = facade.get_amenity(amenity_data['name'])
-        if existing_amenity:
-            return {'error': 'amenity is already registered'}, 400
+        if any(a['name'] == amenity_data['name'] for a in existing_amenities):
+            return {'error': 'Amenity is already registered'}, 400
+
         new_amenity = facade.create_amenity(amenity_data)
+        
         return {
             'id': new_amenity.id,
             'name': new_amenity.name
         }, 201
+
         
 
     @api.response(200, 'List of amenities retrieved successfully')
@@ -55,5 +59,18 @@ class AmenityResource(Resource):
     @api.response(400, 'Invalid input data')
     def put(self, amenity_id):
         """Update an amenity's information"""
-        # Placeholder for the logic to update an amenity by ID
-        pass
+        data = request.get_json
+
+        if data is None or 'name' not in data:
+            return {'error': "Missing 'name' field in the input data"}, 400
+
+        amenity = facade.get_amenity(amenity_id)
+        if not amenity:
+            return {'error': 'Amenity not found'}, 404
+
+        amenity.update(data)
+
+        return {
+            'id': amenity.id,
+            'name': amenity.name
+        }, 200
