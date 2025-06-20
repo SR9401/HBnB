@@ -200,3 +200,5 @@ print(wifi.name)  # Wi-Fi
 - **Ilmi Veliu**
 
 Merci à tous pour votre travail et votre collaboration sur ce projet HBnB – Phase 2.
+
+
