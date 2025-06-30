@@ -1,20 +1,24 @@
 from app.persistence.repository import InMemoryRepository
-from flask import jsonify
 from app.models.user import User
-from app.models.place import Place
 from app.models.amenity import Amenity
+from app.models.place import Place
+from app.models.review import Review
 
 class HBnBFacade:
     def __init__(self):
         self.user_repo = InMemoryRepository()
+        self.amenity_repo = InMemoryRepository()
         self.place_repo = InMemoryRepository()
         self.review_repo = InMemoryRepository()
-        self.amenity_repo = InMemoryRepository()
 
+    # USER
     def create_user(self, user_data):
         user = User(**user_data)
         self.user_repo.add(user)
         return user
+    
+    def get_users(self):
+        return self.user_repo.get_all()
 
     def get_user(self, user_id):
         return self.user_repo.get(user_id)
@@ -22,134 +26,95 @@ class HBnBFacade:
     def get_user_by_email(self, email):
         return self.user_repo.get_by_attribute('email', email)
     
+    def update_user(self, user_id, user_data):
+        self.user_repo.update(user_id, user_data)
+    
+    # AMENITY
     def create_amenity(self, amenity_data):
-    # Placeholder for logic to create an amenity
-        pass
+        amenity = Amenity(**amenity_data)
+        self.amenity_repo.add(amenity)
+        return amenity
 
     def get_amenity(self, amenity_id):
-    # Placeholder for logic to retrieve an amenity by ID
-     pass
+        return self.amenity_repo.get(amenity_id)
 
     def get_all_amenities(self):
-    # Placeholder for logic to retrieve all amenities
-        pass
+        return self.amenity_repo.get_all()
 
     def update_amenity(self, amenity_id, amenity_data):
-    # Placeholder for logic to update an amenity
-        pass
+        self.amenity_repo.update(amenity_id, amenity_data)
 
+    # PLACE
     def create_place(self, place_data):
-    # Placeholder for logic to create a place, including validation for price, latitude, and longitude
-        price = place_data.get("price")
-        if price is None or price < 0:
-            return jsonify({"error": "Price must be non-negative"}), 400
-
-        owner_id = place_data.get("owner_id")
-        if not owner_id:
-            return jsonify({"error": "Owner ID is required"}), 400
-        
-        owner = User.query.get(owner_id)
-        if not owner:
-            return jsonify({"error": "Owner not found"}), 400
-
-
-        amenities = place_data.get("amenities")
-        if not isinstance(amenities, list):
-            return jsonify({"error": "Amenities must be a list of strings"}), 400
-
-        new_place = Place(
-            title=place_data["title"],
-            description=place_data.get("description", ""),
-            price=price,
-            latitude=place_data.get("latitude"),
-            longitude=place_data.get("longitude"),
-            owner=owner
-        )
-        
-        new_place.save()
-        return new_place
-
-
-    def get_place(self, place_id):
-        # Placeholder for logic to retrieve a place by ID, including associated owner and amenities
-        place = Place.query.get(place_id)
-        if not place:
-            return None
-        owner = place.owner
-        amenities = place.amenities
-        return {
-        "id": place.id,
-        "title": place.title,
-        "description": place.description,
-        "latitude": place.latitude,
-        "longitude": place.longitude,
-        "owner": {
-            "id": owner.id,
-            "first_name": owner.first_name,
-            "last_name": owner.last_name,
-            "email": owner.email
-        },
-        "amenities": [
-            {"id": a.id, "name": a.name} for a in amenities
-        ]
-    }
-
-    def get_all_places(self):
-        # Placeholder for logic to retrieve all places
-        places = Place.query.all()
-        result = []
-
-        for place in places:
-            result.append({
-                "id": place.id,
-                "title": place.title,
-                "latitude": place.latitude,
-                "longitude": place.longitude
-            })
-
-        return result
-
-
-    def update_place(self, place_id, place_data):
-        # Placeholder for logic to update a place
-        place = Place.query.get(place_id)
-        if not place:
-            return None
-
-        if "title" in place_data:
-            place.title = place_data["title"]
-        if "description" in place_data:
-            place.description = place_data["description"]
-        if "price" in place_data:
-            place.price = place_data["price"]
-        if "latitude" in place_data:
-            place.latitude = place_data["latitude"]
-        if "longitude" in place_data:
-            place.longitude = place_data["longitude"]
-
-        place.save()
+        user = self.user_repo.get_by_attribute('id', place_data['owner_id'])
+        if not user:
+            raise KeyError('Invalid input data')
+        del place_data['owner_id']
+        place_data['owner'] = user
+        amenities = place_data.pop('amenities', None)
+        if amenities:
+            for a in amenities:
+                amenity = self.get_amenity(a['id'])
+                if not amenity:
+                    raise KeyError('Invalid input data')
+        place = Place(**place_data)
+        self.place_repo.add(place)
+        user.add_place(place)
+        if amenities:
+            for amenity in amenities:
+                place.add_amenity(amenity)
         return place
 
-    def create_review(self, review_data):
-    # Placeholder for logic to create a review, including validation for user_id, place_id, and rating
-        pass
+    def get_place(self, place_id):
+        return self.place_repo.get(place_id)
 
+    def get_all_places(self):
+        return self.place_repo.get_all()
+
+    def update_place(self, place_id, place_data):
+        self.place_repo.update(place_id, place_data)
+
+    # REVIEWS
+    def create_review(self, review_data):
+        user = self.user_repo.get(review_data['user_id'])
+        if not user:
+            raise KeyError('Invalid input data')
+        del review_data['user_id']
+        review_data['user'] = user
+        
+        place = self.place_repo.get(review_data['place_id'])
+        if not place:
+            raise KeyError('Invalid input data')
+        del review_data['place_id']
+        review_data['place'] = place
+
+        review = Review(**review_data)
+        self.review_repo.add(review)
+        user.add_review(review)
+        place.add_review(review)
+        return review
+        
     def get_review(self, review_id):
-        # Placeholder for logic to retrieve a review by ID
-        pass
+        return self.review_repo.get(review_id)
 
     def get_all_reviews(self):
-        # Placeholder for logic to retrieve all reviews
-        pass
+        return self.review_repo.get_all()
 
     def get_reviews_by_place(self, place_id):
-        # Placeholder for logic to retrieve all reviews for a specific place
-        pass
+        place = self.place_repo.get(place_id)
+        if not place:
+            raise KeyError('Place not found')
+        return place.reviews
 
     def update_review(self, review_id, review_data):
-        # Placeholder for logic to update a review
-        pass
+        self.review_repo.update(review_id, review_data)
 
     def delete_review(self, review_id):
-        # Placeholder for logic to delete a review
-        pass
+        review = self.review_repo.get(review_id)
+        
+        user = self.user_repo.get(review.user.id)
+        place = self.place_repo.get(review.place.id)
+
+        user.delete_review(review)
+        place.delete_review(review)
+        self.review_repo.delete(review_id)
