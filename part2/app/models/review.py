@@ -2,7 +2,7 @@ from app.models.base_model import BaseModel
 from app.models.user import User
 from app.models.place import Place
 
-class Place(BaseModel):
+class Review(BaseModel):
 
     def __init__(self, text, rating, place, user):
         super().__init__()
