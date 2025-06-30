@@ -20,9 +20,9 @@ class User(BaseModel):
             raise ValueError("First name must not exceed 50 characters")
         self.__first_name = value
 
-        @property
-        def last_name(self):
-            return self.__last_name
+    @property
+    def last_name(self):
+        return self.__last_name
 
     @last_name.setter
     def last_name(self, value):
