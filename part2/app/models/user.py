@@ -37,8 +37,8 @@ class User(BaseModel):
         return self.__email
     
     @email.setter
-    def email (self,value)
-        if not isinstance(value,str)
+    def email (self,value):
+        if not isinstance(value,str):
             raise TypeError("Email must be a string")
         
         if "@" not  in value or "." not in value.split("@")[-1]:
@@ -50,7 +50,7 @@ class User(BaseModel):
         return self.__is_admin
     
     @is_admin.setter
-        def is_admin(self, value):
-            if not isinstance(value, bool):
-                raise TypeError("is_admin must be a boolean")
+    def is_admin(self, value):
+        if not isinstance(value, bool):
+            raise TypeError("is_admin must be a boolean")
         self.__is_admin = value
