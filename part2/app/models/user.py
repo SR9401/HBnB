@@ -9,36 +9,16 @@ class User(BaseModel):
         super().__init__()
         self.first_name = first_name
         self.last_name = last_name
-        self.email = email
+        self._email = None  # pour le setter email
+        self.email = email  # va appeler le setter
         self.is_admin = is_admin
         self.places = []
         self.reviews = []
-    
-    @property
-    def first_name(self):
-        return self.__first_name
-    
-    @first_name.setter
-    def first_name(self, value):
-        if not isinstance(value, str):
-            raise TypeError("First name must be a string")
-        super().is_max_length('First name', value, 50)
-        self.__first_name = value
-
-    @property
-    def last_name(self):
-        return self.__last_name
-
-    @last_name.setter
-    def last_name(self, value):
-        if not isinstance(value, str):
-            raise TypeError("Last name must be a string")
-        super().is_max_length('Last name', value, 50)
-        self.__last_name = value
+        self.__password = None
 
     @property
     def email(self):
-        return self.__email
+        return self._email
 
     @email.setter
     def email(self, value):
@@ -46,52 +26,34 @@ class User(BaseModel):
             raise TypeError("Email must be a string")
         if not re.match(r"[^@]+@[^@]+\.[^@]+", value):
             raise ValueError("Invalid email format")
+
+        if self._email == value:
+            return
+        
         if value in User.emails:
             raise ValueError("Email already exists")
-        if hasattr(self, "_User__email"):
-            User.emails.discard(self.__email)
-        self.__email = value
+
+        # Supprimer l'ancien email du set si existant
+        if self._email:
+            User.emails.discard(self._email)
+
+        self._email = value
         User.emails.add(value)
 
     @property
-    def is_admin(self):
-        return self.__is_admin
-    
-    @is_admin.setter
-    def is_admin(self, value):
-        if not isinstance(value, bool):
-            raise TypeError("Is Admin must be a boolean")
-        self.__is_admin = value
-
-    def add_place(self, place):
-        """Add an amenity to the place."""
-        self.places.append(place)
-
-    def add_review(self, review):
-        """Add an amenity to the place."""
-        self.reviews.append(review)
-
-    def delete_review(self, review):
-        """Add an amenity to the place."""
-        self.reviews.remove(review)
-    
-    @property
     def password(self):
         return self.__password
-    
+
     @password.setter
     def password(self, value):
         if not isinstance(value, str):
-            raise TypeError("password must be a string")
-        self.__password = value
-    
-    def hash_password(self, password):
-        """Hashes the password before storing it."""
-        self.password = app.bcrypt.generate_password_hash(password).decode('utf-8')
+            raise TypeError("Password must be a string")
+        hashed = app.bcrypt.generate_password_hash(value).decode('utf-8')
+        self.__password = hashed
 
     def verify_password(self, password):
-        """Verifies if the provided password matches the hashed password."""
-        return app.bcrypt.check_password_hash(self.password, password)
+        return app.bcrypt.check_password_hash(self.__password, password)
+
 
     def to_dict(self):
         return {
