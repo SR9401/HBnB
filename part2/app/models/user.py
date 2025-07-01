@@ -53,6 +53,8 @@ class User(BaseModel):
 
     def verify_password(self, password):
         from app import bcrypt
+        if not self.__password:
+            return False
         return bcrypt.check_password_hash(self.__password, password)
 
 
