@@ -46,12 +46,14 @@ class User(BaseModel):
 
     @password.setter
     def password(self, value):
+        from app import bcrypt
         if not isinstance(value, str):
             raise TypeError("Password must be a string")
         hashed = bcrypt.generate_password_hash(value).decode('utf-8')
         self.__password = hashed
 
     def verify_password(self, password):
+        from app import bcrypt
         return bcrypt.check_password_hash(self.__password, password)
 
 
