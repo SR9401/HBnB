@@ -1,6 +1,6 @@
 from .basemodel import BaseModel
 import re
-import app
+from app import bcrypt
 
 class User(BaseModel):
     emails = set()
@@ -48,11 +48,11 @@ class User(BaseModel):
     def password(self, value):
         if not isinstance(value, str):
             raise TypeError("Password must be a string")
-        hashed = app.bcrypt.generate_password_hash(value).decode('utf-8')
+        hashed = bcrypt.generate_password_hash(value).decode('utf-8')
         self.__password = hashed
 
     def verify_password(self, password):
-        return app.bcrypt.check_password_hash(self.__password, password)
+        return bcrypt.check_password_hash(self.__password, password)
 
 
     def to_dict(self):
