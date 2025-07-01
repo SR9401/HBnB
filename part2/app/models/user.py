@@ -1,6 +1,5 @@
 from .basemodel import BaseModel
 import re
-from app import bcrypt
 
 class User(BaseModel):
     emails = set()
