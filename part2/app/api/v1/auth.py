@@ -1,6 +1,5 @@
 from flask_restx import Namespace, Resource, fields
-from flask_jwt_extended import create_access_token
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from app.services import facade
 
 api = Namespace('auth', description='Authentication operations')
@@ -18,6 +17,9 @@ class Login(Resource):
         """Authenticate user and return a JWT token"""
         credentials = api.payload  # Get the email and password from the request payload
         
+        if not credentials or 'email' not in credentials or 'password' not in credentials:
+            return {'error': 'email and password are required'}
+
         # Step 1: Retrieve the user based on the provided email
         user = facade.get_user_by_email(credentials['email'])
         
