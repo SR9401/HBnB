@@ -1,5 +1,6 @@
 from .basemodel import BaseModel
 import re
+import app
 
 class User(BaseModel):
     emails = set()
@@ -73,6 +74,24 @@ class User(BaseModel):
     def delete_review(self, review):
         """Add an amenity to the place."""
         self.reviews.remove(review)
+    
+    @property
+    def password(self):
+        return self.__password
+    
+    @password.setter
+    def password(self, value):
+        if not isinstance(value, str):
+            raise TypeError("password must be a string")
+        self.__password = value
+    
+    def hash_password(self, password):
+        """Hashes the password before storing it."""
+        self.password = app.bcrypt.generate_password_hash(password).decode('utf-8')
+
+    def verify_password(self, password):
+        """Verifies if the provided password matches the hashed password."""
+        return app.bcrypt.check_password_hash(self.password, password)
 
     def to_dict(self):
         return {
