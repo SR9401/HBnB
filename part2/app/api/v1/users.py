@@ -1,5 +1,6 @@
-from flask_restx import Namespace, Resource, fields
+from flask_restx import Namespace, Resource, fields, abort
 from app.services import facade
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 api = Namespace('users', description='User operations')
 
@@ -13,11 +14,17 @@ user_model = api.model('User', {
 
 @api.route('/')
 class UserList(Resource):
+    @jwt_required()
     @api.expect(user_model, validate=True)
     @api.response(201, 'User successfully created')
     @api.response(409, 'Email already registered')
     @api.response(400, 'Invalid input data')
     def post(self):
+        # Recover current user from JWT token
+        current_user = get_jwt_identity()
+        if not current_user.get('is_admin'):
+            abort(403, 'Access denied: administrator required')
+
         """Register a new user"""
         user_data = api.payload
 
@@ -40,6 +47,7 @@ class UserList(Resource):
     
 @api.route('/<user_id>')
 class UserResource(Resource):
+    @jwt_required()
     @api.response(200, 'User details retrieved successfully')
     @api.response(404, 'User not found')
     def get(self, user_id):
@@ -54,6 +62,10 @@ class UserResource(Resource):
     @api.response(404, 'User not found')
     @api.response(400, 'Invalid input data')
     def put(self, user_id):
+        current_user = get_jwt_identity()
+        if not current_user.get('is_admin'):
+            abort(403, 'Access denied: administrator required')
+
         user_data = api.payload
         user = facade.get_user(user_id)
         if not user:
