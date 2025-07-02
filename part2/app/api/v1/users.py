@@ -60,7 +60,6 @@ class UserResource(Resource):
         if not current_user.get('is_admin'):
             abort(403, 'Admin privileges required')
 
-        """Get user details by ID"""
         user = facade.get_user(user_id)
         if not user:
             return {'error': 'User not found'}, 404
@@ -84,6 +83,6 @@ class UserResource(Resource):
         try:
             facade.update_user(user_id, user_data)
             update_user = facade.get_user(user_id)
-            return user.to_dict(), 200
+            return update_user.to_dict(), 200
         except Exception as e:
             return {'error': str(e)}, 400
