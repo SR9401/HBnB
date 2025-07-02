@@ -2,7 +2,16 @@ from flask_restx import Namespace, Resource, fields, abort
 from app.services import facade
 from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 
-api = Namespace('users', description='User operations')
+authorizations = {
+    'Bearer Auth': {
+        'type': 'apiKey',
+        'in': 'header',
+        'name': 'Authorization',
+        'description': "Entrez 'Bearer ' suivi de votre token JWT"
+    }
+}
+
+api = Namespace('users', description='User operations', authorizations=authorizations, security='Bearer Auth')
 
 # Define the user model for input validation and documentation
 user_model = api.model('User', {
@@ -15,6 +24,7 @@ user_model = api.model('User', {
 @api.route('/')
 class UserList(Resource):
     @jwt_required()
+    @api.doc(security='Bearer Auth')
     @api.expect(user_model, validate=True)
     @api.response(201, 'User successfully created')
     @api.response(409, 'Email already registered')
@@ -39,6 +49,7 @@ class UserList(Resource):
             return {'error': str(e)}, 400
         
     @jwt_required()
+    @api.doc(security='Bearer Auth')
     @api.response(200, 'List of users retrieved successfully')
     def get(self):
         """Retrieve a list of users (admin only)"""
@@ -52,6 +63,7 @@ class UserList(Resource):
 @api.route('/<user_id>')
 class UserResource(Resource):
     @jwt_required()
+    @api.doc(security='Bearer Auth')
     @api.response(200, 'User details retrieved successfully')
     @api.response(404, 'User not found')
     def get(self, user_id):
@@ -66,6 +78,7 @@ class UserResource(Resource):
         return user.to_dict(), 200
 
     @jwt_required()
+    @api.doc(security='Bearer Auth')
     @api.expect(user_model)
     @api.response(200, 'User updated successfully')
     @api.response(404, 'User not found')
