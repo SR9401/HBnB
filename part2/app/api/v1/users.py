@@ -14,12 +14,17 @@ user_model = api.model('User', {
 
 @api.route('/')
 class UserList(Resource):
+    @jwt_required()
     @api.expect(user_model, validate=True)
     @api.response(201, 'User successfully created')
     @api.response(409, 'Email already registered')
     @api.response(400, 'Invalid input data')
     def post(self):
-        """Register a new user"""
+        """Register a new user (admin only)"""
+        current_user = get_jwt_identity()
+        if not current_user.get('is_admin'):
+            abort(403, 'Admin privileges required')
+        
         user_data = api.payload
 
         # Simulate email uniqueness check (to be replaced by real validation with persistence)
@@ -36,7 +41,11 @@ class UserList(Resource):
     @jwt_required()
     @api.response(200, 'List of users retrieved successfully')
     def get(self):
-        """Retrieve a list of users"""
+        """Retrieve a list of users (admin only)"""
+        current_user = get_jwt_identity()
+        if not current_user.get('is_admin'):
+            abort(403, 'Admin privileges required')
+
         users = facade.get_users()
         return [user.to_dict() for user in users], 200
     
@@ -74,6 +83,7 @@ class UserResource(Resource):
             return {'error': 'User not found'}, 404
         try:
             facade.update_user(user_id, user_data)
+            update_user = facade.get_user(user_id)
             return user.to_dict(), 200
         except Exception as e:
             return {'error': str(e)}, 400
