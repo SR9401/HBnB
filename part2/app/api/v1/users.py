@@ -23,18 +23,11 @@ user_model = api.model('User', {
 
 @api.route('/')
 class UserList(Resource):
-    @jwt_required()
-    @api.doc(security='Bearer Auth')
     @api.expect(user_model, validate=True)
     @api.response(201, 'User successfully created')
     @api.response(409, 'Email already registered')
     @api.response(400, 'Invalid input data')
     def post(self):
-        """Register a new user (admin only)"""
-        current_user = get_jwt_identity()
-        if not current_user.get('is_admin'):
-            abort(403, 'Admin privileges required')
-        
         user_data = api.payload
 
         # Simulate email uniqueness check (to be replaced by real validation with persistence)
