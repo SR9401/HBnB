@@ -46,8 +46,8 @@ class UserList(Resource):
     @api.response(200, 'List of users retrieved successfully')
     def get(self):
         """Retrieve a list of users (admin only)"""
-        current_user = get_jwt_identity()
-        if not current_user.get('is_admin'):
+        claims = get_jwt()
+        if not claims.get('is_admin'):
             abort(403, 'Admin privileges required')
 
         users = facade.get_users()
@@ -61,8 +61,8 @@ class UserResource(Resource):
     @api.response(404, 'User not found')
     def get(self, user_id):
         """Get user by ID (admin only)"""
-        current_user = get_jwt_identity()
-        if not current_user.get('is_admin'):
+        claims = get_jwt()
+        if not claims.get('is_admin'):
             abort(403, 'Admin privileges required')
 
         user = facade.get_user(user_id)
@@ -78,8 +78,8 @@ class UserResource(Resource):
     @api.response(400, 'Invalid input data')
     def put(self, user_id):
         """Update user (admin only)"""
-        current_user = get_jwt_identity()
-        if not current_user.get('is_admin'):
+        claims = get_jwt()
+        if not claims.get('is_admin'):
             abort(403, 'Admin privileges required')
 
         user_data = api.payload
