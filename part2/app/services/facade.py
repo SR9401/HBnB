@@ -79,6 +79,12 @@ class HBnBFacade:
         return self.place_repo.get_all()
 
     def update_place(self, place_id, place_data):
+        if 'owner_id' in place_data:
+            user = self.user_repo.get(place_data['owner_id'])
+        if not user:
+            raise KeyError("error: Unauthorized action")
+        place_data['owner'] = user
+        del place_data['owner_id']
         self.place_repo.update(place_id, place_data)
 
     # REVIEWS

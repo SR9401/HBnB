@@ -57,6 +57,8 @@ class User(BaseModel):
             return False
         return bcrypt.check_password_hash(self.__password, password)
 
+    def add_place(self, place):
+        self.places.append(place)
 
     def to_dict(self):
         return {
