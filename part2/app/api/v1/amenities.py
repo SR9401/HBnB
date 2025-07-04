@@ -2,6 +2,16 @@ from flask_restx import Namespace, Resource, fields
 from app.services import facade
 from flask_jwt_extended import jwt_required, get_jwt
 
+
+authorizations = {
+    'Bearer Auth': {
+        'type': 'apiKey',
+        'in': 'header',
+        'name': 'Authorization',
+        'description': "Entrez 'Bearer ' suivi de votre token JWT"
+    }
+}
+
 api = Namespace('amenities', description='Amenity operations')
 
 # Define the amenity model for input validation and documentation
@@ -12,6 +22,7 @@ amenity_model = api.model('Amenity', {
 @api.route('/')
 class AmenityList(Resource):
     @jwt_required()
+    @api.doc(security='Bearer Auth')
     @api.expect(amenity_model)
     @api.response(201, 'Amenity successfully created')
     @api.response(400, 'Invalid input data')
@@ -42,6 +53,7 @@ class AmenityList(Resource):
 @api.route('/<amenity_id>')
 class AmenityResource(Resource):
     @jwt_required()
+    @api.doc(security='Bearer Auth')
     @api.response(200, 'Amenity details retrieved successfully')
     @api.response(404, 'Amenity not found')
     def get(self, amenity_id):
@@ -56,6 +68,7 @@ class AmenityResource(Resource):
     @api.response(404, 'Amenity not found')
     @api.response(400, 'Invalid input data')
     @jwt_required()
+    @api.doc(security='Bearer Auth')
     def put(self, amenity_id):
         claims = get_jwt()
         if not claims.get('is_admin'):
