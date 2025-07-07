@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from app import db
 
 class Repository(ABC):
     @abstractmethod
@@ -32,6 +31,7 @@ class SQLAlchemyRepository(Repository):
         self.model = model
 
     def add(self, obj):
+        from app import db
         db.session.add(obj)
         db.session.commit()
 
@@ -45,12 +45,14 @@ class SQLAlchemyRepository(Repository):
         obj = self.get(obj_id)
         if obj:
             for key, value in data.items():
+                from app import db
                 setattr(obj, key, value)
             db.session.commit()
 
     def delete(self, obj_id):
         obj = self.get(obj_id)
         if obj:
+            from app import db
             db.session.delete(obj)
             db.session.commit()
 
