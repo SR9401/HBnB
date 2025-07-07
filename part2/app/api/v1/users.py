@@ -1,6 +1,6 @@
 from flask_restx import Namespace, Resource, fields, abort
 from app.services import facade
-from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt, verify_jwt_in_request_optional
 
 authorizations = {
     'Bearer Auth': {
@@ -19,6 +19,7 @@ user_model = api.model('User', {
     'last_name': fields.String(required=True, description='Last name of the user'),
     'email': fields.String(required=True, description='Email of the user'),
     'password': fields.String(required=True, description='Password of the user'),
+    'is_admin': fields.Boolean(required=False, description='Set to true to create an admin user', default=False)
 })
 
 @api.route('/')
@@ -34,6 +35,11 @@ class UserList(Resource):
         existing_user = facade.get_user_by_email(user_data['email'])
         if existing_user:
             return {'error': 'Email already registered'}, 409
+        
+        verify_jwt_in_request_optional()
+        is_admin = get_jwt().get('is_admin', False)
+
+        user_data['is_admin'] = user_data.get('is_admin', False) if is_admin else False
 
         try:
             new_user = facade.create_user(user_data)
