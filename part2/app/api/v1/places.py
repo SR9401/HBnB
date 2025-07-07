@@ -35,7 +35,7 @@ place_model = api.model('Place', {
     'longitude': fields.Float(required=True, description='Longitude of the place'),
     'owner_id': fields.String(required=True, description='ID of the owner'),
     'owner': fields.Nested(user_model, description='Owner details'),
-    'amenities': fields.List(fields.String, required=True, description="List of amenities IDs")
+    'amenities': fields.List(fields.String, description="List of amenities IDs")
 })
 
 @api.route('/')
@@ -61,7 +61,7 @@ class PlaceList(Resource):
 
         try:
             new_place = facade.create_place(place_data)
-            return new_place.to_dict(), 201
+            return new_place, 201
         except Exception as e:
             return {'error': str(e)}, 400
 
