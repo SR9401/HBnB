@@ -19,7 +19,6 @@ user_model = api.model('User', {
     'last_name': fields.String(required=True, description='Last name of the user'),
     'email': fields.String(required=True, description='Email of the user'),
     'password': fields.String(required=True, description='Password of the user'),
-    'is_admin': fields.Boolean(required=False, description='Set to true to create an admin user', default=False)
 })
 
 @api.route('/')
