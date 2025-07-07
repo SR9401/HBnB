@@ -1,19 +1,14 @@
 from .basemodel import BaseModel
 import re
-
+from app import db
 class User(BaseModel):
-    emails = set()
+    __tablename__ = 'users'
+    first_name = db.Column(db.String(50))
+    last_name = db.Column(db.String(50))
+    email = db.Column(db.String(120), unique=True)
+    password = db.Column(db.String(128))
+    is_admin = db.Column(db.Boolean, default=False)
 
-    def __init__(self, first_name, last_name, email, is_admin=False):
-        super().__init__()
-        self.first_name = first_name
-        self.last_name = last_name
-        self._email = None  # pour le setter email
-        self.email = email  # va appeler le setter
-        self.is_admin = is_admin
-        self.places = []
-        self.reviews = []
-        self.__password = None
 
     @property
     def email(self):
