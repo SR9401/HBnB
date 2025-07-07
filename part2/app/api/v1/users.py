@@ -35,6 +35,15 @@ class UserList(Resource):
         existing_user = facade.get_user_by_email(user_data['email'])
         if existing_user:
             return {'error': 'Email already registered'}, 409
+        
+        all_users = facade.get_users()
+        if not all_users:
+            user_data['is_admin'] = True
+        else:
+            claims = get_jwt() if get_jwt_identity() else {}
+            if not claims or not claims.get('is_admin'):
+                api.abort(403, 'Admin privileges required.')
+            user_data['is_admin'] = False
 
         try:
             new_user = facade.create_user(user_data)
