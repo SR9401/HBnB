@@ -1,6 +1,6 @@
 from flask_restx import Namespace, Resource, fields, abort
 from app.services import facade
-from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt, verify_jwt_in_request
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 
 authorizations = {
     'Bearer Auth': {
@@ -35,18 +35,13 @@ class UserList(Resource):
         existing_user = facade.get_user_by_email(user_data['email'])
         if existing_user:
             return {'error': 'Email already registered'}, 409
-        
-        verify_jwt_in_request()
-        is_admin = get_jwt().get('is_admin', False)
-
-        user_data['is_admin'] = user_data.get('is_admin', False) if is_admin else False
 
         try:
             new_user = facade.create_user(user_data)
             return new_user.to_dict(), 201
         except Exception as e:
             return {'error': str(e)}, 400
-        
+
     @jwt_required()
     @api.doc(security='Bearer Auth')
     @api.response(200, 'List of users retrieved successfully')
@@ -58,7 +53,7 @@ class UserList(Resource):
 
         users = facade.get_users()
         return [user.to_dict() for user in users], 200
-    
+
 @api.route('/<user_id>')
 class UserResource(Resource):
     @jwt_required()
@@ -83,33 +78,18 @@ class UserResource(Resource):
     @api.response(404, 'User not found')
     @api.response(400, 'Invalid input data')
     def put(self, user_id):
-        """Update user - Admins can modify anyone, users can modify themselves (limited)"""
+        """Update user (admin only)"""
         claims = get_jwt()
-        current_user_id = get_jwt_identity()
+        if not claims.get('is_admin'):
+            abort(403, 'Admin privileges required')
+
         user_data = api.payload
-        is_admin = claims.get('is_admin', False)
-        # Récupère l'utilisateur cible
         user = facade.get_user(user_id)
         if not user:
             return {'error': 'User not found'}, 404
-        if is_admin:
-            # Admin : accès complet
-            try:
-                facade.update_user(user_id, user_data)
-                updated_user = facade.get_user(user_id)
-                return updated_user.to_dict(), 200
-            except Exception as e:
-                return {'error': str(e)}, 400
-        else:
-            # Utilisateur : peut seulement modifier ses propres données (sauf email et password)
-            if user_id != current_user_id:
-                return {'error': 'Unauthorized action'}, 403
-            forbidden_fields = ['email', 'password', 'is_admin']
-        for field in forbidden_fields:
-            if field in user_data and user_data[field] != getattr(user, field):
-                return {'error': f"You cannot modify the field '{field}'."}, 400
-            try:
-                facade.update_user(user_id, user_data)
-                return {'message': 'User updated successfully'}, 200
-            except Exception as e:
-                return {'error': str(e)}, 400
+        try:
+            facade.update_user(user_id, user_data)
+            update_user = facade.get_user(user_id)
+            return update_user.to_dict(), 200
+        except Exception as e:
+            return {'error': str(e)}, 400
