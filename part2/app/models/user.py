@@ -53,6 +53,18 @@ class User(db.Model):
             return False
         return bcrypt.check_password_hash(self.__password, password)
 
+    def add_place(self, place):
+        self.places.append(place)
+        
+    def add_review(self, review):
+        """Add a review to the user's list of reviews."""
+        self.reviews.append(review)
+
+    def delete_review(self, review):
+        """Remove a review from the user's list of reviews."""
+        if review in self.reviews:
+            self.reviews.remove(review)
+
 
     def to_dict(self):
         return {

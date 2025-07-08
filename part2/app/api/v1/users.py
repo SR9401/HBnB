@@ -51,6 +51,7 @@ class UserList(Resource):
         except Exception as e:
             return {'error': str(e)}, 400
         
+
     @jwt_required()
     @api.doc(security='Bearer Auth')
     @api.response(200, 'List of users retrieved successfully')
@@ -63,6 +64,7 @@ class UserList(Resource):
         users = facade.get_users()
         return [user.to_dict() for user in users], 200
     
+
 @api.route('/<user_id>')
 class UserResource(Resource):
     @jwt_required()
