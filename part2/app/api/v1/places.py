@@ -93,6 +93,12 @@ class PlaceResource(Resource):
         if place.owner.id != current_user_id:
             return {'error': 'Unauthorized action'}, 403
 
+        if 'owner_id' in place_data:
+            owner = facade.get_user(place_data['owner_id'])
+            if not owner:
+                return {'error': 'Owner not found'}, 404
+            place_data['owner'] = owner
+            
         try:
             facade.update_place(place_id, place_data)
             return {'message': 'Place updated successfully'}, 200
