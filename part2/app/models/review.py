@@ -1,14 +1,15 @@
-from .basemodel import BaseModel
+from .baseclass import BaseClass
+from app import db
 from .place import Place
 from .user import User
+from sqlalchemy.orm import validates
+import uuid
 
-class Review(BaseModel):
-	def __init__(self, text, rating, place, user):
-		super().__init__()
-		self.text = text
-		self.rating = rating
-		self.place = place
-		self.user = user
+class Review(BaseClass):
+	id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+	text = db.Column(db.String(255), nullable=False)
+	rating = db.Column(db.Integer, nullable=False)
+
 	
 	@property
 	def text(self):
