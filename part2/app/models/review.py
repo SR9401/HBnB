@@ -11,49 +11,32 @@ class Review(BaseClass):
 	text = db.Column(db.String(255), nullable=False)
 	rating = db.Column(db.Integer, nullable=False)
 
-	
-	@property
-	def text(self):
-		return self.__text
-	
-	@text.setter
-	def text(self, value):
+	@validates('text')
+	def validate_text(self, value):
 		if not value:
 			raise ValueError("Text cannot be empty")
 		if not isinstance(value, str):
 			raise TypeError("Text must be a string")
-		self.__text = value
+		return value
 
-	@property
-	def rating(self):
-		return self.__rating
-	
-	@rating.setter
-	def rating(self, value):
+	@validates('rating')
+	def validate_rating(self, value):
 		if not isinstance(value, int):
 			raise TypeError("Rating must be an integer")
 		super().is_between('Rating', value, 1, 6)
-		self.__rating = value
+		return value
 
-	@property
-	def place(self):
-		return self.__place
-	
-	@place.setter
-	def place(self, value):
+	@validates('place')
+	def validate_place(self, value):
 		if not isinstance(value, Place):
 			raise TypeError("Place must be a place instance")
-		self.__place = value
+		return value
 
-	@property
-	def user(self):
-		return self.__user
-	
-	@user.setter
-	def user(self, value):
+	@validates('user')
+	def validate_user(self, value):
 		if not isinstance(value, User):
 			raise TypeError("User must be a user instance")
-		self.__user = value
+		return value
 
 	def to_dict(self):
 		return {
