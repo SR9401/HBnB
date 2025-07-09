@@ -13,8 +13,9 @@ class Amenity(BaseClass):
             raise TypeError("Name must be a string")
         if not value:
             raise ValueError("Name cannot be empty")
-        super().is_max_length('Name', value, 50)
-        self.__name = value
+        if len(value) > 50:
+            raise ValueError("Name must be 50 characters max")
+        return value
 
     def update(self, data):
         return super().update(data)
