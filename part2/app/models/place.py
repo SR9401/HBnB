@@ -14,7 +14,7 @@ class Place(BaseClass):
     longitude = db.Column(db.Float, nullable=False)
     
     @validates('title')
-    def validate_title(self, value):
+    def validate_title(self, key, value):
         if not value:
             raise ValueError("Title cannot be empty")
         if not isinstance(value, str):
