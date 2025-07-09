@@ -12,7 +12,7 @@ class Review(BaseClass):
 	rating = db.Column(db.Integer, nullable=False)
 
 	@validates('text')
-	def validate_text(self, value):
+	def validate_text(self, key, value):
 		if not value:
 			raise ValueError("Text cannot be empty")
 		if not isinstance(value, str):
@@ -20,20 +20,20 @@ class Review(BaseClass):
 		return value
 
 	@validates('rating')
-	def validate_rating(self, value):
+	def validate_rating(self, key, value):
 		if not isinstance(value, int):
 			raise TypeError("Rating must be an integer")
 		super().is_between('Rating', value, 1, 6)
 		return value
 
 	@validates('place')
-	def validate_place(self, value):
+	def validate_place(self, key, value):
 		if not isinstance(value, Place):
 			raise TypeError("Place must be a place instance")
 		return value
 
 	@validates('user')
-	def validate_user(self, value):
+	def validate_user(self, key, value):
 		if not isinstance(value, User):
 			raise TypeError("User must be a user instance")
 		return value
