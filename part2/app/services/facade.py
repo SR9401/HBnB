@@ -1,4 +1,5 @@
 from app.persistence.repository import SQLAlchemyRepository
+from app.persistence.repository import UserRepository
 from app.models.user import User
 from app.models.amenity import Amenity
 from app.models.place import Place
@@ -6,36 +7,35 @@ from app.models.review import Review
 
 class HBnBFacade:
     def __init__(self):
-        self.user_repo = SQLAlchemyRepository(User)
-        self.amenity_repo = SQLAlchemyRepository(User)
-        self.place_repo = SQLAlchemyRepository(User)
-        self.review_repo = SQLAlchemyRepository(User)
+        self.user_repo = UserRepository()
+        self.amenity_repo = SQLAlchemyRepository(Amenity)
+        self.place_repo = SQLAlchemyRepository(Place)
+        self.review_repo = SQLAlchemyRepository(Review)
 
     # USER
+
     def create_user(self, user_data):
-        user = User(
-        first_name=user_data['first_name'],
-        last_name=user_data['last_name'],
-        email=user_data['email'],
-        is_admin = user_data.get('is_admin', False)
-    )
-        user.password = user_data['password']
-    
+        user = User(**user_data)
+        user.hash_password(user_data['password'])
         self.user_repo.add(user)
         return user
-
-    
-    def get_users(self):
-        return self.user_repo.get_all()
 
     def get_user(self, user_id):
         return self.user_repo.get(user_id)
 
     def get_user_by_email(self, email):
-        return self.user_repo.get_by_attribute('email', email)
+        return self.user_repo.get_user_by_email(email)
     
     def update_user(self, user_id, user_data):
+        if 'password' in user_data:
+            user = self.user_repo.get(user_id)
+            if user:
+                user.hash_password(user_data['password'])
+                del user_data['password']
         self.user_repo.update(user_id, user_data)
+        
+    def get_users(self):
+        return self.user_repo.get_all()
     
     # AMENITY
     def create_amenity(self, amenity_data):

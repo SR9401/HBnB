@@ -1,58 +1,51 @@
-from .basemodel import BaseModel
+from .baseclass import BaseClass
 import re
 from app import db
-class User(db.Model):
+from app import bcrypt
+from sqlalchemy.orm import validates
+
+
+class User(BaseClass):
     __tablename__ = 'users'
-    id = db.Column(db.Integer, primary_key=True)
-    first_name = db.Column(db.String(50))
-    last_name = db.Column(db.String(50))
-    email = db.Column(db.String(120), unique=True)
-    password = db.Column(db.String(128))
+    first_name = db.Column(db.String(50), nullable=False)
+    last_name = db.Column(db.String(50), nullable=False)
+    email = db.Column(db.String(120), nullable=False, unique=True)
+    password = db.Column(db.String(128), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
 
 
-    @property
-    def email(self):
-        return self._email
+    @validates('first_name', 'last_name')
+    def validate_name(self, key, value):
+        if not isinstance(value, str):
+            raise TypeError(f"{key.replace('_', ' ').capitalize()} must be a string")
+        if len(value) > 50:
+            raise ValueError(f"{key.replace('_', ' ').capitalize()} must be less than or equal to 50 characters")
+        if not value.isalpha():
+            raise ValueError(f"{key.replace('_', ' ').capitalize()} must be empty")
+        return value
 
-    @email.setter
-    def email(self, value):
+    @validates('email')
+    def validate_email(self, key, value):
         if not isinstance(value, str):
             raise TypeError("Email must be a string")
         if not re.match(r"[^@]+@[^@]+\.[^@]+", value):
             raise ValueError("Invalid email format")
+        return value
 
-        if self._email == value:
-            return
-        
-        if value in User.emails:
-            raise ValueError("Email already exists")
+    @validates('is_admin')
+    def validate_is_admin(self, key, value):
+        if not isinstance(value, bool):
+            raise TypeError("is_admin must be a boolean")
+        return value
 
-        # Supprimer l'ancien email du set si existant
-        if self._email:
-            User.emails.discard(self._email)
-
-        self._email = value
-        User.emails.add(value)
-
-    @property
-    def password(self):
-        return self.__password
-
-    @password.setter
-    def password(self, value):
-        from app import bcrypt
-        if not isinstance(value, str):
-            raise TypeError("Password must be a string")
-        hashed = bcrypt.generate_password_hash(value).decode('utf-8')
-        self.__password = hashed
+    def hash_password(self, password):
+        """Hash the password before storing it."""
+        self.password = bcrypt.generate_password_hash(password).decode('utf-8')
 
     def verify_password(self, password):
-        from app import bcrypt
-        if not self.__password:
-            return False
-        return bcrypt.check_password_hash(self.__password, password)
-
+        """Verify the hashed password."""
+        return bcrypt.check_password_hash(self.password, password)
+    
     def add_place(self, place):
         self.places.append(place)
         

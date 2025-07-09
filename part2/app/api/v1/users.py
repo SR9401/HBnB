@@ -1,7 +1,8 @@
 from flask_restx import Namespace, Resource, fields, abort
-from app.services import facade
+from app.services.facade import HBnBFacade
 from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 
+facade = HBnBFacade()
 authorizations = {
     'Bearer Auth': {
         'type': 'apiKey',
@@ -89,18 +90,33 @@ class UserResource(Resource):
     @api.response(404, 'User not found')
     @api.response(400, 'Invalid input data')
     def put(self, user_id):
-        """Update user (admin only)"""
-        claims = get_jwt()
-        if not claims.get('is_admin'):
-            abort(403, 'Admin privileges required')
-
+        """Update user - Admins can modify anyone, users can modify themselves (limited)"""
         user_data = api.payload
+        claims = get_jwt()
+        current_user_id = get_jwt_identity()
+        user_data = api.payload
+        is_admin = claims.get('is_admin', False)
         user = facade.get_user(user_id)
         if not user:
             return {'error': 'User not found'}, 404
-        try:
-            facade.update_user(user_id, user_data)
-            update_user = facade.get_user(user_id)
-            return update_user.to_dict(), 200
-        except Exception as e:
-            return {'error': str(e)}, 400
+        if is_admin:
+            # Admin : accès complet
+            try:
+                facade.update_user(user_id, user_data)
+                updated_user = facade.get_user(user_id)
+                return updated_user.to_dict(), 200
+            except Exception as e:
+                return {'error': str(e)}, 400
+        else:
+            # Utilisateur : peut seulement modifier ses propres données (sauf email et password)
+            if user_id != current_user_id:
+                return {'error': 'Unauthorized action'}, 403
+            forbidden_fields = ['email', 'password', 'is_admin']
+            for field in forbidden_fields:
+                if field in user_data and user_data[field] != getattr(user, field):
+                    return {'error': f"You cannot modify the field '{field}'."}, 400
+                try:
+                    facade.update_user(user_id, user_data)
+                    return {'message': 'User updated successfully'}, 200
+                except Exception as e:
+                    return {'error': str(e)}, 400
