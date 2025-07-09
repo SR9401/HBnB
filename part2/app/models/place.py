@@ -75,7 +75,7 @@ class Place(BaseClass):
             'price': self.price,
             'latitude': self.latitude,
             'longitude': self.longitude,
-            'owner_id': self.owner.id
+            'owner_id': self.owner_id
         }
     
     def to_dict_list(self):
