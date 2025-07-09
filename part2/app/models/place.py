@@ -24,7 +24,7 @@ class Place(BaseClass):
         return value
 
     @validates('price')
-    def validate_price(self, value):
+    def validate_price(self, key, value):
         if not isinstance(value, float) and not isinstance(value, int):
             raise TypeError("Price must be a float")
         if value < 0:
@@ -32,7 +32,7 @@ class Place(BaseClass):
         return float(value)
 
     @validates('latitude')
-    def validate_latitude(self, value):
+    def validate_latitude(self, key, value):
         if not isinstance(value, float):
             raise TypeError("Latitude must be a float")
         if not (-90 <= value <= 90):
@@ -40,7 +40,7 @@ class Place(BaseClass):
         return float(value)
     
     @validates('longitude')
-    def validate_longitude(self, value):
+    def validate_longitude(self, key, value):
         if not isinstance(value, float):
             raise TypeError("Longitude must be a float")
         if not (-180 <= value <= 180):
@@ -48,7 +48,7 @@ class Place(BaseClass):
         return float(value)
 
     @validates('owner')
-    def validate_owner(self, value):
+    def validate_owner(self, key, value):
         if not isinstance(value, User):
             raise TypeError("Owner must be a user instance")
         return value
