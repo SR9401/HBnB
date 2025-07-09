@@ -7,11 +7,7 @@ class Amenity(BaseClass):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(50), nullable=False)
 
-    @property
-    def name(self):
-        return self.__name
-
-    @name.setter
+    @validates('name')
     def name(self, value):
         if not isinstance(value, str):
             raise TypeError("Name must be a string")
