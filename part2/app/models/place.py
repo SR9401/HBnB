@@ -50,7 +50,7 @@ class Place(BaseClass):
         return float(value)
 
     @validates('owner_id')
-    def validate_owner(self, key, value):
+    def validate_owner_id(self, key, value):
         if not isinstance(value, User):
             raise TypeError("Owner must be a user instance")
         return value
