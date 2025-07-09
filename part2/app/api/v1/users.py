@@ -79,12 +79,12 @@ class UserResource(Resource):
     @api.response(404, 'User not found')
     @api.response(400, 'Invalid input data')
     def put(self, user_id):
-        """Update user (admin only)"""
-        claims = get_jwt()
-        if not claims.get('is_admin'):
-            abort(403, 'Admin privileges required')
-
+        """Update user - Admins can modify anyone, users can modify themselves (limited)"""
         user_data = api.payload
+        claims = get_jwt()
+        current_user_id = get_jwt_identity()
+        user_data = api.payload
+        is_admin = claims.get('is_admin', False)
         user = facade.get_user(user_id)
         if not user:
             return {'error': 'User not found'}, 404
