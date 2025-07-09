@@ -49,7 +49,7 @@ class Place(BaseClass):
             raise ValueError("Longitude must be between -180 et 180.")
         return float(value)
 
-    @validates('owner')
+    @validates('owner_id')
     def validate_owner(self, key, value):
         if not isinstance(value, User):
             raise TypeError("Owner must be a user instance")
