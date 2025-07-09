@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from app.__init__ import db
+from app import db
+from app.models.user import User
 
 
 class Repository(ABC):
@@ -52,6 +53,7 @@ class InMemoryRepository(Repository):
         return next((obj for obj in self._storage.values() if getattr(obj, attr_name) == attr_value), None)
 
 
+
 class SQLAlchemyRepository(Repository):
     def __init__(self, model):
         self.model = model
@@ -59,9 +61,10 @@ class SQLAlchemyRepository(Repository):
     def add(self, obj):
         db.session.add(obj)
         db.session.commit()
+        return obj
 
     def get(self, obj_id):
-        return self.model.query.get(obj_id)
+        return db.session.get(self.model, obj_id)
 
     def get_all(self):
         return self.model.query.all()
@@ -72,6 +75,7 @@ class SQLAlchemyRepository(Repository):
             for key, value in data.items():
                 setattr(obj, key, value)
             db.session.commit()
+        return obj
 
     def delete(self, obj_id):
         obj = self.get(obj_id)
@@ -81,3 +85,10 @@ class SQLAlchemyRepository(Repository):
 
     def get_by_attribute(self, attr_name, attr_value):
         return self.model.query.filter(getattr(self.model, attr_name) == attr_value).first()
+    
+class UserRepository(SQLAlchemyRepository):
+    def __init__(self):
+        super().__init__(User)
+
+    def get_user_by_email(self, email):
+        return self.model.query.filter_by(email=email).first()

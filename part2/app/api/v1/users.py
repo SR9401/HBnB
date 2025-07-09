@@ -101,11 +101,11 @@ class UserResource(Resource):
             if user_id != current_user_id:
                 return {'error': 'Unauthorized action'}, 403
             forbidden_fields = ['email', 'password', 'is_admin']
-        for field in forbidden_fields:
-            if field in user_data and user_data[field] != getattr(user, field):
-                return {'error': f"You cannot modify the field '{field}'."}, 400
-            try:
-                facade.update_user(user_id, user_data)
-                return {'message': 'User updated successfully'}, 200
-            except Exception as e:
-                return {'error': str(e)}, 400
+            for field in forbidden_fields:
+                if field in user_data and user_data[field] != getattr(user, field):
+                    return {'error': f"You cannot modify the field '{field}'."}, 400
+                try:
+                    facade.update_user(user_id, user_data)
+                    return {'message': 'User updated successfully'}, 200
+                except Exception as e:
+                    return {'error': str(e)}, 400

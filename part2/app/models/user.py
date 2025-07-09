@@ -1,11 +1,11 @@
-from .baseclass import BaseModel
+from .baseclass import BaseClass
 import re
 from app import db
 from app import bcrypt
 from sqlalchemy.orm import validates
 
 
-class User(BaseModel):
+class User(BaseClass):
     __tablename__ = 'users'
     first_name = db.Column(db.String(50), nullable=False)
     last_name = db.Column(db.String(50), nullable=False)
@@ -64,5 +64,6 @@ class User(BaseModel):
             'id': self.id,
             'first_name': self.first_name,
             'last_name': self.last_name,
-            'email': self.email
+            'email': self.email,
+            'is_admin': self.is_admin
         }
