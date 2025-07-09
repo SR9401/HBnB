@@ -1,7 +1,8 @@
 from flask_restx import Namespace, Resource, fields, abort
-from app.services import facade
+from app.services.facade import HBnBFacade
 from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 
+facade = HBnBFacade()
 authorizations = {
     'Bearer Auth': {
         'type': 'apiKey',
