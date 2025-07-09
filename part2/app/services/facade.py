@@ -58,9 +58,6 @@ class HBnBFacade:
         if not user:
             raise KeyError('Invalid owner_id: user not found')
 
-        del place_data['owner_id']
-        place_data['owner'] = user
-
         amenities_input = place_data.pop('amenities', [])
         amenities_objs = []
 
