@@ -1,17 +1,20 @@
-from .basemodel import BaseModel
+from .baseclass import BaseClass
+from app import db, bcrypt
+from sqlalchemy.orm import validates
+import uuid
 from .user import User
 
-class Place(BaseModel):
-    def __init__(self, title, price, latitude, longitude, owner, description=None):
-        super().__init__()
-        self.title = title
-        self.description = description
-        self.price = price
-        self.latitude = latitude
-        self.longitude = longitude
-        self.owner = owner
-        self.reviews = []  # List to store related reviews
-        self.amenities = []  # List to store related amenities
+class Place(BaseClass):
+    __tablename__ = 'places'
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    title = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text(36))
+    price = db.Column(db.Float, nullable=False)
+    latitude = db.Column(db.Float, nullable=False)
+    longitude = db.Column(db.Float, nullable=False)
+    
+    owner_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
+
 
     @property
     def title(self):
