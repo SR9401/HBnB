@@ -2,10 +2,11 @@ from .baseclass import BaseClass
 from app import db
 from sqlalchemy.orm import validates, relationship
 from .place_amenity import place_amenity
+import uuid
 
 class Amenity(BaseClass):
     __tablename__ = 'amenities'
-    id = db.Column(db.String(36), primary_key=True, autoincrement=True)
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     name = db.Column(db.String(50), nullable=False)
     
     places = relationship(
