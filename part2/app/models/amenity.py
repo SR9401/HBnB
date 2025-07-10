@@ -1,11 +1,18 @@
 from .baseclass import BaseClass
 from app import db
-from sqlalchemy.orm import validates
+from sqlalchemy.orm import validates, relationship
+from .place_amenity import place_amenity
 
 class Amenity(BaseClass):
     __tablename__ = 'amenities'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(50), nullable=False)
+    
+    places = relationship(
+        "Place",
+        secondary=place_amenity,
+        back_populates="amenities"
+    )
 
     @validates('name')
     def validate_name(self, key, value):
