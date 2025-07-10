@@ -1,8 +1,10 @@
 from .baseclass import BaseClass
-from app import db, bcrypt
-from sqlalchemy.orm import validates
+from app import db
+from sqlalchemy.orm import validates, relationship
+from sqlalchemy import Table, Column, Integer, ForeignKey
 import uuid
 from .user import User
+from .place_amenity import place_amenity
 
 class Place(BaseClass):
     __tablename__ = 'places'
@@ -13,7 +15,16 @@ class Place(BaseClass):
     latitude = db.Column(db.Float, nullable=False)
     longitude = db.Column(db.Float, nullable=False)
 
-    owner_id = db.Column(db.String(36), nullable=False)
+    owner_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
+    owner = relationship('User', back_populates='places')
+    
+    amenities = relationship(
+        "Amenity",
+        secondary=place_amenity,
+        back_populates="places"
+    )
+
+    reviews = relationship('Review', back_populates='place', cascade='all, delete-orphan')
     
     @validates('title')
     def validate_title(self, key, value):
@@ -86,7 +97,7 @@ class Place(BaseClass):
             'price': self.price,
             'latitude': self.latitude,
             'longitude': self.longitude,
-            'owner': self.owner.to_dict(),
-            'amenities': self.amenities,
-            'reviews': self.reviews
+            'owner': self.owner.to_dict() if self.owner else None,
+            'amenities': [a.to_dict() for a in self.amenities],
+            'reviews': [r.to_dict() for r in self.reviews]
         }
