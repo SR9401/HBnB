@@ -83,10 +83,3 @@ Tous les accès aux entités passent par un pattern **Repository** générique.
 ## 🧭 Diagramme Entité-Relation
 
 Visualisation claire de la base générée avec **Mermaid.js** :
-
-```mermaid
-erDiagram
-    USER ||--o{ PLACE : owns
-    USER ||--o{ REVIEW : writes
-    PLACE ||--o{ REVIEW : receives
-    PLACE ||--o{ AMENITY : includes
