@@ -2,7 +2,7 @@ from .baseclass import BaseClass
 import re
 from app import db
 from app import bcrypt
-from sqlalchemy.orm import validates
+from sqlalchemy.orm import validates, relationship
 
 
 class User(BaseClass):
@@ -12,7 +12,9 @@ class User(BaseClass):
     email = db.Column(db.String(120), nullable=False, unique=True)
     password = db.Column(db.String(128), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
-
+    
+    places = relationship('Place', back_populates='owner', cascade='all, delete-orphan')
+    reviews = relationship('Review', back_populates='user', cascade='all, delete-orphan')
 
     @validates('first_name', 'last_name')
     def validate_name(self, key, value):
@@ -20,8 +22,8 @@ class User(BaseClass):
             raise TypeError(f"{key.replace('_', ' ').capitalize()} must be a string")
         if len(value) > 50:
             raise ValueError(f"{key.replace('_', ' ').capitalize()} must be less than or equal to 50 characters")
-        if not value.isalpha():
-            raise ValueError(f"{key.replace('_', ' ').capitalize()} must be empty")
+        if not re.match(r"^[a-zA-Z\- ]+$", value):
+            raise ValueError(f"{key.replace('_', ' ').capitalize()} contains invalid characters")
         return value
 
     @validates('email')
