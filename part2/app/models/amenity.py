@@ -5,7 +5,7 @@ from .place_amenity import place_amenity
 
 class Amenity(BaseClass):
     __tablename__ = 'amenities'
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id = db.Column(db.String(36), primary_key=True, autoincrement=True)
     name = db.Column(db.String(50), nullable=False)
     
     places = relationship(
