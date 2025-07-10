@@ -1,99 +1,85 @@
-# README
-# 🏠 HBnB - Airbnb Clone
+# 🧩 HBnB – Backend Contribution : Persistence, Auth & ORM Mapping
 
-HBnB est un clone simplifié d'Airbnb conçu pour offrir une plateforme de réservation entre utilisateurs et hôtes. Ce projet est un exercice d’architecture logicielle combinant **backend Python**, **stockage de données relationnel** et **visualisation de structure** via **Mermaid.js**.
-
-## 🚀 Fonctionnalités
-
-- Création de comptes utilisateurs avec rôles
-- Ajout de logements (`Place`) avec coordonnées, prix, et description
-- Ajout d’équipements (`Amenity`) associés aux logements
-- Publication de critiques (`Review`) pour les logements
-- Système de réservation (optionnel)
-- Visualisation claire de la base de données avec diagramme ER
+Ce document couvre notre travail spécifique dans le projet HBnB, centré sur l'intégration de la base de données, la mise en place de l'authentification, et la structuration des entités métiers avec SQLAlchemy.
 
 ---
 
-## 🗂️ Structure de la base de données
+## 🔁 Transition from In-Memory to SQL Database
 
-```mermaid
-erDiagram
-    USER {
-        string id
-        string first_name
-        string last_name
-        string email
-        string password
-        boolean is_admin
-    }
+Nous avons refactoré la logique existante pour passer du stockage en mémoire à une **persistance en base de données** relationnelle à l'aide de **SQLAlchemy**.
 
-    PLACE {
-        string id
-        string title
-        string description
-        float price
-        float latitude
-        float longitude
-        string owner_id
-    }
+- ✅ Ajout d'une configuration persistante via une *application factory*
+- ✅ Gestion des sessions via `db.session` dans les repositories
+- ✅ Implémentation de `SQLAlchemyRepository` générique avec héritages spécialisés
 
-    REVIEW {
-        string id
-        string text
-        int rating
-        string user_id
-        string place_id
-    }
+---
 
-    AMENITY {
-        string id
-        string name
-    }
+## 🧱 ORM Models & Entity Mapping
 
-    PLACE_AMENITY {
-        string place_id
-        string amenity_id
-    }
+Les entités principales de l’application ont été mappées sur des modèles SQLAlchemy complets avec validations et contrôles métier.
 
-    RESERVATION {
-        string id
-        date start_date
-        date end_date
-        string user_id
-        string place_id
-    }
+### 🔹 Modèles gérés
 
-    USER ||--o{ PLACE : "owns"
-    USER ||--o{ REVIEW : "writes"
-    USER ||--o{ RESERVATION : "makes"
-    PLACE ||--o{ REVIEW : "has"
-    PLACE ||--o{ PLACE_AMENITY : "has"
-    PLACE ||--o{ RESERVATION : "booked in"
-    AMENITY ||--o{ PLACE_AMENITY : "is linked with"
-````
+- `User` – avec hash du mot de passe, rôle `is_admin`, validation d'email
+- `Place` – localisation, prix, description, validations géographiques
+- `Review` – contenu, notation (si applicable), rattachement à un utilisateur et un logement
+- `Amenity` – équipements liés aux logements
 
-🧰 Technologies
-Python 3.x
-SQLAlchemy (ORM)
-MySQL / SQLite
-Mermaid.js (pour le diagramme)
-Git / GitHub
+### 🔹 Ce que nous avons fait :
 
-⚙️ Installation
-```bash
-git clone https://github.com/ton-utilisateur/hbnb.git
-cd hbnb
-pip install -r requirements.txt
-````
+- Création des classes avec héritage depuis une base `BaseClass`
+- Génération d'UUID pour les identifiants
+- Utilisation de `@validates` pour les règles de validation fortes
+- Mise en place des méthodes `to_dict()` pour exposer les données
 
-📸 Exemple d'utilisation
+---
 
-1. Créer un utilisateur
-2. Ajouter un logement
-3. Lier des équipements
-4. Poster une review
-5. Faire une réservation (si activé)
+## 🛡️ Authentification & Droits
 
-✍️ Auteurs
-Angela RHIN
-Shakib ROJAS
+Mise en place d’un **système JWT d’authentification** pour sécuriser les routes selon le rôle utilisateur.
+
+- 🔑 Auth via `flask-jwt-extended`
+- 🔐 Création de tokens à la connexion
+- 🛂 Sécurisation des endpoints selon :
+  - Utilisateur connecté
+  - Utilisateur administrateur (`is_admin`)
+
+---
+
+## ⚙️ Accès & Permissions
+
+### ✅ Endpoints utilisateurs :
+
+- Création d’un compte
+- Connexion avec génération de JWT
+- Récupération/modification des infos perso (auth requis)
+
+### ✅ Endpoints admin :
+
+- Accès à la liste complète des utilisateurs
+- Modification ou suppression d’utilisateurs
+
+---
+
+## 🧰 Repository Pattern
+
+Tous les accès aux entités passent par un pattern **Repository** générique.
+
+- Classe `SQLAlchemyRepository` avec héritage spécifique (`UserRepository`, `PlaceRepository`, etc.)
+- Permet un découplage fort entre logique métier et ORM
+- Facilite les tests et la maintenance
+
+---
+
+## 🧪 Base de données & scripts
+
+- SQL scripts de création des tables
+- (Optionnel) Données initiales injectables
+- Utilisation de `db.create_all()` en local
+- Diagrams Mermaid.js générés à partir du schéma (voir `docs/`)
+
+---
+
+## 🧭 Diagramme Entité-Relation
+
+Visualisation claire de la base générée avec **Mermaid.js** :
