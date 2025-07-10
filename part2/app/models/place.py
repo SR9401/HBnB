@@ -1,16 +1,16 @@
 from .baseclass import BaseClass
 from app import db
 from sqlalchemy.orm import validates, relationship
-from sqlalchemy import Table, Column, Integer, ForeignKey
+from sqlalchemy import ForeignKey
 import uuid
 from .user import User
 from .place_amenity import place_amenity
 
 class Place(BaseClass):
     __tablename__ = 'places'
-    id = db.Column(db.Integer, primary_key=True, default=lambda: str(uuid.uuid4()))
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     title = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.Text(36))
+    description = db.Column(db.Text)
     price = db.Column(db.Float, nullable=False)
     latitude = db.Column(db.Float, nullable=False)
     longitude = db.Column(db.Float, nullable=False)
@@ -62,8 +62,8 @@ class Place(BaseClass):
 
     @validates('owner_id')
     def validate_owner_id(self, key, value):
-        if not isinstance(value, User):
-            raise TypeError("Owner must be a user instance")
+        if not isinstance(value, str):
+            raise TypeError("Owner ID msut be a string")
         return value
 
     def add_review(self, review):
