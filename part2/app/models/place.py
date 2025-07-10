@@ -8,7 +8,7 @@ from .place_amenity import place_amenity
 
 class Place(BaseClass):
     __tablename__ = 'places'
-    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    id = db.Column(db.Integer, primary_key=True, default=lambda: str(uuid.uuid4()))
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text(36))
     price = db.Column(db.Float, nullable=False)
