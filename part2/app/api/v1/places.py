@@ -93,12 +93,6 @@ class PlaceResource(Resource):
         if place.owner.id != current_user_id:
             return {'error': 'Unauthorized action'}, 403
 
-        if 'owner_id' in place_data:
-            owner = facade.get_user(place_data['owner_id'])
-            if not owner:
-                return {'error': 'Owner not found'}, 404
-            place_data['owner'] = owner
-            
         try:
             facade.update_place(place_id, place_data)
             return {'message': 'Place updated successfully'}, 200
@@ -123,12 +117,11 @@ class PlaceAmenities(Resource):
             return {'error': 'Place not found'}, 404
 
         for amenity_data in amenities_data:
-            amenity = facade.get_amenity(amenity_data['id'])
+            amenity_id = amenity_data['id'] if isinstance(amenity_data, dict) else amenity_data
+            amenity = facade.get_amenity(amenity_id)
             if not amenity:
-                return {'error': f'Amenity with ID {amenity_data["id"]} not found'}, 404
-
-        for amenity_data in amenities_data:
-            place.add_amenity(amenity_data)
+                return {'error': f'Amenity with ID {amenity_id} not found'}, 404
+            place.add_amenity(amenity)
 
         return {'message': 'Amenities added successfully'}, 200
 

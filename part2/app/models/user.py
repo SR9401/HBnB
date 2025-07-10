@@ -2,7 +2,7 @@ from .baseclass import BaseClass
 import re
 from app import db
 from app import bcrypt
-from sqlalchemy.orm import validates
+from sqlalchemy.orm import validates, relationship
 
 
 class User(BaseClass):
@@ -12,6 +12,9 @@ class User(BaseClass):
     email = db.Column(db.String(120), nullable=False, unique=True)
     password = db.Column(db.String(128), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
+    
+    places = relationship('Place', back_populates='owner', cascade='all, delete-orphan')
+    reviews = relationship('Review', back_populates='user', cascade='all, delete-orphan')
 
 
     @validates('first_name', 'last_name')
