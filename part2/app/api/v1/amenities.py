@@ -1,17 +1,6 @@
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
-from flask_jwt_extended import jwt_required, get_jwt
-
-
-authorizations = {
-    'Bearer Auth': {
-        'type': 'apiKey',
-        'in': 'header',
-        'name': 'Authorization',
-        'description': "Entrez 'Bearer ' suivi de votre token JWT"
-    }
-}
-
+from flask import request
 api = Namespace('amenities', description='Amenity operations')
 
 # Define the amenity model for input validation and documentation
@@ -21,65 +10,77 @@ amenity_model = api.model('Amenity', {
 
 @api.route('/')
 class AmenityList(Resource):
-    @jwt_required()
-    @api.doc(security='Bearer Auth')
     @api.expect(amenity_model)
     @api.response(201, 'Amenity successfully created')
     @api.response(400, 'Invalid input data')
     def post(self):
-        claims = get_jwt()
-        if not claims.get('is_admin'):
-            return {'error': 'Admin access required'}, 403
-
         """Register a new amenity"""
-        amenity_data = api.payload
-        
-        existing_amenity = facade.amenity_repo.get_by_attribute('name', amenity_data.get('name'))
-        if existing_amenity:
-            return {'error': 'Invalid input data'}, 400
         try:
+            amenity_data = api.payload
+            if not amenity_data or 'name' not in amenity_data:
+                return {'error': "Missing 'name' field"}, 400
+
+            existing_amenities = facade.get_all_amenities()
+            if any(a['name'] == amenity_data['name'] for a in existing_amenities):
+                return {'error': 'Amenity is already registered'}, 400
+
             new_amenity = facade.create_amenity(amenity_data)
-            return new_amenity.to_dict(), 201
+
+            return {
+                'id': new_amenity.id,
+                'name': new_amenity.name
+            }, 201
         except Exception as e:
-            return {'error': str(e)}, 400
+            return {'error': f'Internal server error: {str(e)}'}, 500
 
     @api.response(200, 'List of amenities retrieved successfully')
     def get(self):
         """Retrieve a list of all amenities"""
-        amenities = facade.get_all_amenities()
-        return [amenity.to_dict() for amenity in amenities], 200
+        try:
+            result = facade.get_all_amenities()
+            return result, 200
+        except Exception as e:
+            return {'error': f'Failed to retrieve amenities: {str(e)}'}, 500
 
 
 @api.route('/<amenity_id>')
 class AmenityResource(Resource):
-    @jwt_required()
-    @api.doc(security='Bearer Auth')
     @api.response(200, 'Amenity details retrieved successfully')
     @api.response(404, 'Amenity not found')
     def get(self, amenity_id):
         """Get amenity details by ID"""
-        amenity = facade.get_amenity(amenity_id)
-        if not amenity:
-            return {'error': 'Amenity not found'}, 404
-        return amenity.to_dict(), 200
+        try:
+            amenity = facade.get_amenity(amenity_id)
+            if not amenity:
+                return {'error': 'Amenity not found'}, 404
+
+            return {
+                'id': amenity.id,
+                'name': amenity.name
+            }, 200
+        except Exception as e:
+            return {'error': f'Failed to retrieve amenity: {str(e)}'}, 500
 
     @api.expect(amenity_model)
     @api.response(200, 'Amenity updated successfully')
     @api.response(404, 'Amenity not found')
     @api.response(400, 'Invalid input data')
-    @jwt_required()
-    @api.doc(security='Bearer Auth')
     def put(self, amenity_id):
-        claims = get_jwt()
-        if not claims.get('is_admin'):
-            return {'error': 'Admin privileges required'}, 403
-
-        amenity_data = api.payload
-        amenity = facade.get_amenity(amenity_id)
-        if not amenity:
-            return {'error': 'Amenity not found'}, 404
+        """Update an amenity's information"""
         try:
-            facade.update_amenity(amenity_id, amenity_data)
-            return {"message": "Amenity updated successfully"}, 200
+            data = api.payload
+            if not data or 'name' not in data:
+                return {'error': "Missing 'name' field in the input data"}, 400
+
+            amenity = facade.get_amenity(amenity_id)
+            if not amenity:
+                return {'error': 'Amenity not found'}, 404
+
+            amenity.update(data)
+
+            return {
+                'id': amenity.id,
+                'name': amenity.name
+            }, 200
         except Exception as e:
-            return {'error': str(e)}, 400
+            return {'error': f'Failed to update amenity: {str(e)}'}, 500

@@ -1,103 +1,111 @@
-from .baseclass import BaseClass
-from app import db
-from sqlalchemy.orm import validates, relationship
-from sqlalchemy import ForeignKey
-import uuid
-from .user import User
-from .place_amenity import place_amenity
+from app.models.base_model import BaseModel
+from app.models.user import User
 
-class Place(BaseClass):
-    __tablename__ = 'places'
-    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    title = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.Text)
-    price = db.Column(db.Float, nullable=False)
-    latitude = db.Column(db.Float, nullable=False)
-    longitude = db.Column(db.Float, nullable=False)
 
-    owner_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
-    owner = relationship('User', back_populates='places')
+class Place(BaseModel):
+    def __init__(self, title, description, price, latitude, longitude, owner):
+        super().__init__()
+        self.title = title
+        self.description = description
+        self.price = price
+        self.latitude = latitude
+        self.longitude = longitude
+        self._owner = owner
+        self.reviews = []  # List to store related reviews
+        self.amenities = []  # List to store related amenities
     
-    amenities = relationship(
-        "Amenity",
-        secondary=place_amenity,
-        back_populates="places"
-    )
-
-    reviews = relationship('Review', back_populates='place', cascade='all, delete-orphan')
     
-    @validates('title')
-    def validate_title(self, key, value):
-        if not value:
-            raise ValueError("Title cannot be empty")
+    @property
+    def title(self):
+        return self.__title
+    
+    @title.setter
+    def title(self, value):
         if not isinstance(value, str):
             raise TypeError("Title must be a string")
-        if len(value) > 50:
-            raise ValueError("Title must be 50 characters max")
-        return value
+        if len(value) > 100:
+            raise ValueError("Title must be < 100 characters")
+        self.__title = value
+        self.save()
 
-    @validates('price')
-    def validate_price(self, key, value):
-        if not isinstance(value, float) and not isinstance(value, int):
+    @property
+    def description(self):
+        return self.__description
+    
+    @description.setter
+    def description(self, value):
+        if value is not None and not isinstance(value, str):
+            raise TypeError("Description must be a string")
+        self.__description = value
+        self.save()
+
+    @property
+    def price(self):
+        return self.__price
+    
+    @price.setter
+    def price(self, value):
+        if not isinstance (value, (int, float)):
             raise TypeError("Price must be a float")
         if value < 0:
-            raise ValueError("Price must be positive.")
-        return float(value)
+            raise ValueError("Price must be positive")
+        self.__price = value
+        self.save()
 
-    @validates('latitude')
-    def validate_latitude(self, key, value):
-        if not isinstance(value, float):
-            raise TypeError("Latitude must be a float")
-        if not (-90 <= value <= 90):
-            raise ValueError("Latitude must be between -90 and 90.")
-        return float(value)
+
+    @property
+    def latitude(self):
+        return self.__latitude
     
-    @validates('longitude')
-    def validate_longitude(self, key, value):
-        if not isinstance(value, float):
-            raise TypeError("Longitude must be a float")
-        if not (-180 <= value <= 180):
-            raise ValueError("Longitude must be between -180 et 180.")
-        return float(value)
+    @latitude.setter
+    def latitude(self, value):
+        if not isinstance (value, (int, float)):
+            raise TypeError("Latitude must be a float")
+        if value < -90.0 or value > 90.0:
+            raise ValueError("Latitude must be between -90.0 and 90.0")
+        self.__latitude = value
+        self.save()
 
-    @validates('owner_id')
-    def validate_owner_id(self, key, value):
-        if not isinstance(value, str):
-            raise TypeError("Owner ID msut be a string")
-        return value
+    @property
+    def longitude(self):
+        return self.__longitude
+    
+    @longitude.setter
+    def longitude(self, value):
+        if not isinstance (value, float):
+            raise TypeError("Longitude must be a float")
+        if value < -180.0 or value > 180.0:
+            raise ValueError("Longitude must be between -180.0 and 180.0")
+        self.__longitude = value
+        self.save()        
+
+
+    @property
+    def owner(self):
+        return self.__owner
+
+    @owner.setter
+    def owner(self, value):
+         if not isinstance(value, User):
+            raise TypeError("Owner must be a User instance")
+         self.__owner = value
+         self.save()
 
     def add_review(self, review):
         """Add a review to the place."""
         self.reviews.append(review)
-    
-    def delete_review(self, review):
-        """Add an amenity to the place."""
-        self.reviews.remove(review)
 
     def add_amenity(self, amenity):
         """Add an amenity to the place."""
         self.amenities.append(amenity)
 
-    def to_dict(self):
-        return {
+    def to_dict(self, full=False):
+        base = {
             'id': self.id,
             'title': self.title,
             'description': self.description,
             'price': self.price,
             'latitude': self.latitude,
             'longitude': self.longitude,
-            'owner_id': self.owner_id
-        }
-    
-    def to_dict_list(self):
-        return {
-            'id': self.id,
-            'title': self.title,
-            'description': self.description,
-            'price': self.price,
-            'latitude': self.latitude,
-            'longitude': self.longitude,
-            'owner': self.owner.to_dict() if self.owner else None,
-            'amenities': [a.to_dict() for a in self.amenities],
-            'reviews': [r.to_dict() for r in self.reviews]
+            'owner_id': self.owner.id if hasattr(self.owner, 'id') else self.owner,
         }

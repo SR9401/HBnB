@@ -17,12 +17,7 @@ class BaseModel:
             if hasattr(self, key):
                 setattr(self, key, value)
         self.save()  # Update the updated_at timestamp
-        
-    def is_max_length(self, name, value, max_length):
-        if len(value) > max_length:
-            raise ValueError(f"{name} must be {max_length} characters max.") 
-        
     
-    def is_between(self, name, value, min, max):
-        if not min < value < max:
-            raise ValueError(f"{name} must be between {min} and {max}.")
+    def is_in_range(self, value, min_value, max_value):
+        if min_value <= value <= max_value:
+            raise ValueError("")
