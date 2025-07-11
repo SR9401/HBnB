@@ -89,6 +89,8 @@ class HBnBFacade:
         place = self.place_repo.get(place_id)
         if not place:
             raise KeyError("Place not found")
+        
+        place_data.pop('owner', None)
             
         amenities_input = place_data.pop('amenities', None)
         if amenities_input is not None:
