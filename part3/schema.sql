@@ -1,4 +1,4 @@
-CREATE TABLE "user" (
+CREATE TABLE IF NOT EXISTS "user" (
     id CHAR(36) PRIMARY KEY,
     first_name VARCHAR(255),
     last_name VARCHAR(255),
@@ -7,7 +7,7 @@ CREATE TABLE "user" (
     is_admin BOOLEAN DEFAULT FALSE
 );
 
-CREATE TABLE place (
+CREATE TABLE IF NOT EXISTS place (
     id CHAR(36) PRIMARY KEY,
     title VARCHAR(255),
     description TEXT,
@@ -18,7 +18,7 @@ CREATE TABLE place (
     FOREIGN KEY (owner_id) REFERENCES "user"(id) ON DELETE CASCADE
 );
 
-CREATE TABLE review (
+CREATE TABLE IF NOT EXISTS review (
     id CHAR(36) PRIMARY KEY,
     text TEXT,
     rating INT CHECK (rating BETWEEN 1 AND 5),
@@ -29,7 +29,7 @@ CREATE TABLE review (
     UNIQUE (user_id, place_id)
 );
 
-CREATE TABLE amenity (
+CREATE TABLE IF NOT EXISTS amenity (
     id CHAR(36) PRIMARY KEY,
     name VARCHAR(255) UNIQUE NOT NULL
 );
