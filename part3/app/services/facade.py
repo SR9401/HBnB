@@ -86,7 +86,24 @@ class HBnBFacade:
         return self.place_repo.get_all()
 
     def update_place(self, place_id, place_data):
-        self.place_repo.update(place_id, place_data)
+        place = self.place_repo.get(place_id)
+        if not place:
+            raise KeyError("Place not found")
+            
+        amenities_input = place_data.pop('amenities', None)
+        if amenities_input is not None:
+            place.amenities.clear()
+            for a in amenities_input:
+                amenity_id = a['id'] if isinstance(a, dict) else a
+                amenity = self.amenity_repo.get(amenity_id)
+                if not amenity:
+                    raise KeyError(f"Amenity with id '{amenity_id}' not found")
+                place.add_amenity(amenity)
+
+        for key, value in place_data.items():
+            if hasattr(place, key):
+                setattr(place, key, value)
+        self.place_repo.session.commit()
 
     # REVIEWS
     def create_review(self, review_data):
