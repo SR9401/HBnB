@@ -34,7 +34,7 @@ CREATE TABLE amenity (
     name VARCHAR(255) UNIQUE NOT NULL
 );
 
-CREATE TABLE place_amenity (
+CREATE TABLE IF NOT EXISTS place_amenity (
     place_id CHAR(36),
     amenity_id CHAR(36),
     PRIMARY KEY (place_id, amenity_id),
