@@ -4,6 +4,7 @@ from app.models.user import User
 from app.models.amenity import Amenity
 from app.models.place import Place
 from app.models.review import Review
+from app import db
 
 class HBnBFacade:
     def __init__(self):
@@ -88,24 +89,23 @@ class HBnBFacade:
     def update_place(self, place_id, place_data):
         place = self.place_repo.get(place_id)
         if not place:
-            raise KeyError("Place not found")
+            raise KeyError('Place not found')
         
         place_data.pop('owner', None)
-            
-        amenities_input = place_data.pop('amenities', None)
-        if amenities_input is not None:
-            place.amenities.clear()
-            for a in amenities_input:
-                amenity_id = a['id'] if isinstance(a, dict) else a
+        
+        amenities_ids = place_data.pop('amenities', None)
+        if amenities_ids is not None:
+            amenities_objs = []
+            for amenity_id in amenities_ids:
                 amenity = self.amenity_repo.get(amenity_id)
                 if not amenity:
-                    raise KeyError(f"Amenity with id '{amenity_id}' not found")
-                place.add_amenity(amenity)
-
+                    raise KeyError(f"Amenity {amenity_id} not found")
+                amenities_objs.append(amenity)
+            place.amenities = amenities_objs
         for key, value in place_data.items():
-            if hasattr(place, key):
-                setattr(place, key, value)
-        self.place_repo.session.commit()
+            setattr(place, key, value)
+        # Ici on fait le commit, car repository ne le fait pas
+        db.session.commit()
 
     # REVIEWS
     def create_review(self, review_data):
