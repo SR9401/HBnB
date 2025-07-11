@@ -21,3 +21,5 @@ CREATE TABLE place_amenity (
     FOREIGN KEY (place_id) REFERENCES place(id) ON DELETE CASCADE,
     FOREIGN KEY (amenity_id) REFERENCES amenity(id) ON DELETE CASCADE
 );
+
+INSERT INTO amenity (id, name) VALUES ("0791af83-2255-49a0-bc55-451ebdf33db8", "Wifi"), ("7883f49c-b4de-4b54-a24f-516ad47aa383", "Piscine"), ("74990c19-313a-4e34-a79d-e18bbd8733e1", "Climatisation");
