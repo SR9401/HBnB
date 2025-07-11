@@ -29,7 +29,8 @@ class Review(BaseClass):
     def validate_rating(self, key, value):
         if not isinstance(value, int):
             raise TypeError("Rating must be an integer")
-        super().is_between('Rating', value, 1, 5)
+        if not 1 <= value <= 5:
+            raise ValueError("Rating must be between 1 and 5.")
         return value
 
     @validates('place_id')
